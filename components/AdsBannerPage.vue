@@ -18,7 +18,11 @@
           </button>
         </div>
 
-        <div class="table-wrap mt-3">
+        <div v-if="adsLoading" class="text-center py-4">
+          <div class="spinner-border spinner-border-sm" role="status" />
+        </div>
+
+        <div v-else class="table-wrap mt-3">
           <table class="data-table">
             <thead>
               <tr>
@@ -217,6 +221,7 @@ const view = ref("list"); // 'list', 'create', 'edit'
 const adsList = ref([]);
 const adImgUploading = ref(false);
 const adSaving = ref(false);
+const adsLoading = ref(false);
 
 const adForm = ref({
   img: null,
@@ -340,11 +345,14 @@ const saveAd = async () => {
 };
 
 async function fetchAds() {
+  adsLoading.value = true;
   try {
     const res = await props.adsApi.list();
     adsList.value = res.data;
   } catch (e) {
     console.error("banner fetch error", e);
+  } finally {
+    adsLoading.value = false;
   }
 }
 
