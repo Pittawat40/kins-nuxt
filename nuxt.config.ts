@@ -5,7 +5,7 @@ export default defineNuxtConfig({
 
   // SSG — generates static HTML for every page
   nitro: {
-    preset: "vercel-static",
+    preset: "static",
   },
 
   // CSS — Bootstrap + custom styles
