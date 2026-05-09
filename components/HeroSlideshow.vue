@@ -1,6 +1,5 @@
 <template>
   <section class="hero" id="home">
-    <!-- Slides -->
     <div
       v-for="(slide, i) in slides"
       :key="slide.id"
@@ -11,6 +10,11 @@
     >
       <video
         v-if="slide.type === 'video'"
+        :ref="
+          (el) => {
+            if (el) videoRefs[i] = el;
+          }
+        "
         :src="resolveBannerUrl(slide.url)"
         muted
         playsinline
@@ -19,58 +23,46 @@
         loop
         class="media"
       />
+
       <img v-else :src="resolveBannerUrl(slide.url)" class="media" />
     </div>
 
-    <!-- Overlay -->
     <div class="hero-ov" />
 
-    <!-- Prev / Next arrows -->
-    <button class="hero-arr prev" @click="prev" aria-label="Previous slide">
+    <button
+      class="hero-arr prev"
+      @click="prevReset"
+      aria-label="Previous slide"
+    >
       <i class="bi bi-chevron-left" />
     </button>
-    <button class="hero-arr next" @click="next" aria-label="Next slide">
+    <button class="hero-arr next" @click="nextReset" aria-label="Next slide">
       <i class="bi bi-chevron-right" />
     </button>
 
-    <!-- Dots -->
     <div class="hero-dots" role="tablist" aria-label="Slide navigation">
       <button
         v-for="(_, i) in slides"
         :key="i"
         class="hdot"
         :class="{ on: current === i }"
-        @click="goTo(i)"
+        @click="goToReset(i)"
         :aria-label="`Slide ${i + 1}`"
         :aria-selected="current === i"
         role="tab"
       />
     </div>
 
-    <!-- Scroll indicator -->
     <div class="hero-si d-none d-md-flex">
       <div class="sline" />
       <span>Scroll</span>
     </div>
-
-    <!-- Content -->
-    <!-- <div class="hero-c">
-      <div class="container-fluid px-4 px-lg-5">
-        <div class="row">
-          <div class="col-lg-8 col-xl-7">
-            <h1 class="h-title">
-              Find Spaces That<br />
-              <em>Define Your</em><br />
-              Lifestyle
-            </h1>
-          </div>
-        </div>
-      </div>
-    </div> -->
   </section>
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
+
 const {
   public: { apiBase = "http://localhost:3002/api" },
 } = useRuntimeConfig();
@@ -93,6 +85,7 @@ const props = defineProps({
 });
 
 const current = ref(0);
+const videoRefs = ref({});
 let timer = null;
 
 function goTo(index) {
@@ -113,7 +106,10 @@ function resetAuto() {
   startAuto();
 }
 
-// Arrow clicks reset timer
+function goToReset(index) {
+  goTo(index);
+  resetAuto();
+}
 function nextReset() {
   next();
   resetAuto();
@@ -135,15 +131,63 @@ function onTouchEnd(e) {
   }
 }
 
+// ── ฟังก์ชันสั่งเล่นวิดีโอและแก้ปัญหา LINE Browser ──
+function playCurrentVideo() {
+  nextTick(() => {
+    const activeVideo = videoRefs.value[current.value];
+    if (activeVideo) {
+      activeVideo.muted = true;
+      activeVideo.play().catch((err) => {
+        console.warn(
+          "Autoplay blocked by browser policy. Awaiting touch interaction.",
+          err,
+        );
+      });
+    }
+  });
+}
+
+// ฟังก์ชันดักจับการแตะครั้งแรกของผู้ใช้เพื่อปลดล็อกวิดีโอ (จำเป็นมากสำหรับ LINE)
+function unlockAutoplay() {
+  const activeVideo = videoRefs.value[current.value];
+  if (activeVideo) {
+    activeVideo.muted = true;
+    activeVideo
+      .play()
+      .then(() => {
+        cleanupUnlockListeners();
+      })
+      .catch((err) => {
+        console.error("Failed to force play:", err);
+      });
+  }
+}
+
+function cleanupUnlockListeners() {
+  document.removeEventListener("touchstart", unlockAutoplay);
+  document.removeEventListener("click", unlockAutoplay);
+}
+
+watch(current, () => {
+  playCurrentVideo();
+});
+
 onMounted(() => {
   startAuto();
+
   const el = document.querySelector(".hero");
   el?.addEventListener("touchstart", onTouchStart, { passive: true });
   el?.addEventListener("touchend", onTouchEnd, { passive: true });
+
+  playCurrentVideo();
+
+  document.addEventListener("touchstart", unlockAutoplay, { passive: true });
+  document.addEventListener("click", unlockAutoplay);
 });
 
 onUnmounted(() => {
   clearInterval(timer);
+  cleanupUnlockListeners();
 });
 </script>
 
@@ -177,6 +221,13 @@ img {
 .hero-slide.active {
   opacity: 1;
   transform: scale(1);
+}
+
+/* ตั้งค่าให้วิดีโอขยายเต็มจอเหมือนภาพนิ่ง */
+.hero-slide video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .hero-ov {
