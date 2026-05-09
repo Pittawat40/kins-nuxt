@@ -92,6 +92,7 @@ async function fetchData() {
 
     activeBanner.value =
       bannersRes.data.find((b) => b.active) || bannersRes.data[0] || null;
+    window.scrollTo(0, 0);
   } catch (e) {
     console.error(e);
     error.value = true;
