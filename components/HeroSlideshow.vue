@@ -9,18 +9,16 @@
       :aria-label="slide.alt"
       role="img"
     >
-      <!-- ถ้าเป็นวิดีโอ -->
       <video
         v-if="slide.type === 'video'"
         :src="resolveBannerUrl(slide.url)"
         muted
-        loop
-        autoplay
         playsinline
+        webkit-playsinline
+        autoplay
+        loop
         class="media"
       />
-
-      <!-- ถ้าเป็นรูป -->
       <img v-else :src="resolveBannerUrl(slide.url)" class="media" />
     </div>
 
