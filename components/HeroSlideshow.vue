@@ -8,21 +8,33 @@
       :aria-label="slide.alt"
       role="img"
     >
-      <video
-        v-if="slide.type === 'video'"
-        :ref="
-          (el) => {
-            if (el) videoRefs[i] = el;
-          }
-        "
-        :src="resolveBannerUrl(slide.url)"
-        muted
-        playsinline
-        webkit-playsinline
-        autoplay
-        loop
-        class="media"
-      />
+      <div v-if="slide.type === 'video'" class="video-container">
+        <video
+          :ref="
+            (el) => {
+              if (el) videoRefs[i] = el;
+            }
+          "
+          :src="resolveBannerUrl(slide.url)"
+          :poster="resolveBannerUrl(slide.posterUrl || slide.thumbnail)"
+          muted
+          playsinline
+          webkit-playsinline
+          autoplay
+          loop
+          class="media"
+        />
+
+        <button
+          v-if="isVideoBlocked[i] && current === i"
+          class="play-btn-fallback"
+          @click="manualPlay(i)"
+          aria-label="Play video"
+        >
+          <i class="bi bi-play-fill" />
+          <span>Play Video</span>
+        </button>
+      </div>
 
       <img v-else :src="resolveBannerUrl(slide.url)" class="media" />
     </div>
@@ -86,6 +98,7 @@ const props = defineProps({
 
 const current = ref(0);
 const videoRefs = ref({});
+const isVideoBlocked = ref({}); // เก็บสถานะการโดนบล็อกของวิดีโอแต่ละตัว
 let timer = null;
 
 function goTo(index) {
@@ -132,22 +145,29 @@ function onTouchEnd(e) {
 }
 
 // ── ฟังก์ชันสั่งเล่นวิดีโอและแก้ปัญหา LINE Browser ──
+
+// สั่งเล่นวิดีโอตัวปัจจุบันอย่างปลอดภัย
 function playCurrentVideo() {
   nextTick(() => {
     const activeVideo = videoRefs.value[current.value];
     if (activeVideo) {
       activeVideo.muted = true;
-      activeVideo.play().catch((err) => {
-        console.warn(
-          "Autoplay blocked by browser policy. Awaiting touch interaction.",
-          err,
-        );
-      });
+      activeVideo
+        .play()
+        .then(() => {
+          // ถ้าเล่นสำเร็จ ให้ปิดปุ่มสำรอง
+          isVideoBlocked.value[current.value] = false;
+        })
+        .catch((err) => {
+          console.warn("Autoplay blocked. Showing manual play button.", err);
+          // หากโดนบล็อก (เช่น ติด Low Power Mode หรือเปิดบน LINE ครั้งแรก) ให้โชว์ปุ่มสำรอง
+          isVideoBlocked.value[current.value] = true;
+        });
     }
   });
 }
 
-// ฟังก์ชันดักจับการแตะครั้งแรกของผู้ใช้เพื่อปลดล็อกวิดีโอ (จำเป็นมากสำหรับ LINE)
+// ฟังก์ชันแตะหน้าจอครั้งแรกเพื่อบังคับเล่น (แก้ปัญหา LINE เจาะจง)
 function unlockAutoplay() {
   const activeVideo = videoRefs.value[current.value];
   if (activeVideo) {
@@ -155,10 +175,26 @@ function unlockAutoplay() {
     activeVideo
       .play()
       .then(() => {
+        isVideoBlocked.value[current.value] = false;
         cleanupUnlockListeners();
       })
       .catch((err) => {
-        console.error("Failed to force play:", err);
+        console.error("Failed to unlock video:", err);
+      });
+  }
+}
+
+// เล่นแบบแมนนวลเมื่อผู้ใช้จิ้มปุ่ม Play เอง
+function manualPlay(index) {
+  const video = videoRefs.value[index];
+  if (video) {
+    video
+      .play()
+      .then(() => {
+        isVideoBlocked.value[index] = false;
+      })
+      .catch((err) => {
+        console.error("Manual play failed:", err);
       });
   }
 }
@@ -181,6 +217,7 @@ onMounted(() => {
 
   playCurrentVideo();
 
+  // ดักจับการมีปฏิสัมพันธ์ของนิ้วผู้ใช้ครั้งแรก เพื่อปลดล็อกวิดีโอบน LINE
   document.addEventListener("touchstart", unlockAutoplay, { passive: true });
   document.addEventListener("click", unlockAutoplay);
 });
@@ -223,11 +260,66 @@ img {
   transform: scale(1);
 }
 
-/* ตั้งค่าให้วิดีโอขยายเต็มจอเหมือนภาพนิ่ง */
+/* ── ป้องกันการสั่นของสไลด์ที่เป็นวิดีโอ ── */
+/* ปิดเอฟเฟกต์การซูม (Scale) บนสไลด์วิดีโอ เพื่อป้องกันภาพสั่นสะท้อนจาก GPU */
+.hero-slide:has(video) {
+  transform: none !important;
+  transition: opacity 1.2s ease !important;
+}
+.hero-slide:has(video).active {
+  transform: none !important;
+}
+
+/* ครอบสไลด์วิดีโอให้อยู่ในกรอบ และเปิดการเร่งความเร็วการ์ดจอ */
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
 .hero-slide video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* บังคับรีดประสิทธิภาพจากชิปกราฟิกของมือถือช่วยประมวลผลวิดีโอ */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ── ปุ่ม Play สำรองเมื่อติด Low Power Mode ── */
+.play-btn-fallback {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 1.6rem;
+  background: rgba(10, 10, 8, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50px;
+  color: var(--white, #fff);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+.play-btn-fallback:hover {
+  background: rgba(10, 10, 8, 0.85);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+.play-btn-fallback i {
+  font-size: 1.2rem;
 }
 
 .hero-ov {
