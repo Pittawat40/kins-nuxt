@@ -144,14 +144,14 @@
                 <option value="published">Published</option>
                 <option value="unpublished">Unpublished</option>
               </select>
-              <select
+              <!-- <select
                 v-model="filterSort"
                 class="form-select"
                 @change="fetchPosts"
               >
                 <option value="newest">Newest</option>
                 <option value="oldest">Oldest</option>
-              </select>
+              </select> -->
             </div>
             <div v-if="listLoading" class="text-center py-4">
               <div class="spinner-border spinner-border-sm" role="status" />
@@ -171,6 +171,7 @@
                     <th>Title</th>
                     <th style="width: 105px">Date</th>
                     <th style="width: 105px">Status</th>
+                    <th style="width: 90px">Sort</th>
                     <th style="width: 90px">Manage</th>
                   </tr>
                 </thead>
@@ -223,6 +224,27 @@
                     </td>
                     <td>
                       <div class="action-btns">
+                        <button
+                          class="act-btn sort-btn"
+                          :disabled="index === 0 && page === 1"
+                          @click="moveItem(item, 'up')"
+                        >
+                          <i class="bi bi-chevron-up" />
+                        </button>
+                        <button
+                          class="act-btn sort-btn"
+                          :disabled="
+                            index === pagedItems.length - 1 &&
+                            page === totalPages
+                          "
+                          @click="moveItem(item, 'down')"
+                        >
+                          <i class="bi bi-chevron-down" />
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="action-btns">
                         <button class="act-btn edit" @click="openEdit(item)">
                           <i class="bi bi-pencil" />
                         </button>
@@ -266,6 +288,15 @@
                 >
                   <i class="bi bi-chevron-right" />
                 </button>
+                <select
+                  v-model="perPage"
+                  class="form-select"
+                  style="width: auto"
+                  @change="onLimitChange"
+                >
+                  <option :value="10">10 / หน้า</option>
+                  <option :value="20">20 / หน้า</option>
+                </select>
               </div>
             </div>
           </section>
@@ -918,9 +949,9 @@ const listLoading = ref(false);
 const saveLoading = ref(false);
 const search = ref("");
 const filterStatus = ref("");
-const filterSort = ref("newest");
+// const filterSort = ref("newest");
 const page = ref(1);
-const perPage = 8;
+const perPage = ref(10);
 const totalPages = computed(() => meta.value.totalPages ?? 1);
 
 let searchTimer = null;
@@ -932,10 +963,27 @@ function onSearchInput() {
   }, 400);
 }
 
+function onLimitChange() {
+  page.value = 1;
+  fetchPosts();
+}
+
+async function moveItem(item, direction) {
+  try {
+    await postsApi.move(activeSection.value, item.id, direction);
+    await fetchPosts();
+  } catch (e) {
+    showToast(e.message || "เรียงลำดับไม่สำเร็จ", "error");
+  }
+}
+
 async function fetchPosts() {
   listLoading.value = true;
   try {
-    const params = { page: page.value, limit: perPage, sort: filterSort.value };
+    const params = {
+      page: page.value,
+      limit: perPage.value,
+    };
     if (search.value) params.search = search.value;
     if (filterStatus.value) params.status = filterStatus.value;
     const res = await postsApi.list(activeSection.value, params);
@@ -1574,7 +1622,7 @@ onMounted(async () => {
   padding: 7px 12px;
   background: #fff;
   flex: 1;
-  min-width: 70%;
+  min-width: 80%;
 }
 .search-wrap .bi {
   color: var(--muted);
@@ -1599,6 +1647,11 @@ onMounted(async () => {
 .item-excerpt {
   font-size: 12px;
   color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
 }
 .date-cell {
   font-size: 12px;

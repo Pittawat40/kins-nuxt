@@ -100,6 +100,12 @@ export const useApi = () => {
         body: JSON.stringify({ ids, status }),
       });
     },
+    move(section, id, direction) {
+      return apiFetch(`/${section}/posts/${id}/move`, {
+        method: "PATCH",
+        body: JSON.stringify({ direction }),
+      });
+    },
     combined(params = {}) {
       const q = new URLSearchParams(params).toString();
       return apiFetch(`/posts/combined${q ? `?${q}` : ""}`);
