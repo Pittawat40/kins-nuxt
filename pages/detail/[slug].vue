@@ -13,8 +13,24 @@
         <div class="html-desc" v-html="detail.content"></div>
       </div>
 
+      <!-- ADS BANNER ใต้ content detail -->
+      <div
+        v-if="detailAds.length > 0"
+        class="container-fluid px-3 px-lg-5 mt-4"
+      >
+        <div
+          class="ad-placeholder"
+          v-for="(ads, index) in detailAds"
+          :key="ads.id"
+        >
+          <a :href="ads.link" target="_blank" rel="noopener noreferrer">
+            <img :src="resolveImgUrl(ads.img)" alt="Advertisement" />
+          </a>
+        </div>
+      </div>
+
       <!-- GRID -->
-      <div class="container-fluid px-3 px-lg-5 mt-5">
+      <div class="container-fluid px-3 px-lg-5 mt-4 mt-lg-5">
         <div class="d-flex align-items-end justify-content-between">
           <div>
             <span class="sec-rule" />
@@ -36,11 +52,43 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const { posts: postsApi } = useApi();
+const { posts: postsApi, ads: adsApi } = useApi();
 
 const pending = ref(true);
 const detail = ref({});
 const postList = ref([]);
+const detailAds = ref([]);
+
+// ── ADS_PER_VIEW สำหรับหน้า detail ──────────────────────────────
+const DETAIL_ADS_PER_VIEW = 1;
+
+async function fetchDetailAds() {
+  try {
+    const res = await adsApi.list({ status: "published" });
+    const all = res.data || [];
+    if (all.length === 0) return;
+    if (all.length <= DETAIL_ADS_PER_VIEW) {
+      detailAds.value = all;
+      return;
+    }
+    // ใช้ offset คนละตัวกับ list page เพื่อให้ detail แสดง ads ชุดถัดไป
+    const stored = process.client
+      ? parseInt(sessionStorage.getItem("ads_detail_offset") || "0", 10)
+      : 0;
+    const picked = [];
+    for (let i = 0; i < DETAIL_ADS_PER_VIEW; i++) {
+      picked.push(all[(stored + i) % all.length]);
+    }
+    detailAds.value = picked;
+    // เลื่อน offset ไปข้างหน้า
+    if (process.client) {
+      const next = (stored + DETAIL_ADS_PER_VIEW) % all.length;
+      sessionStorage.setItem("ads_detail_offset", String(next));
+    }
+  } catch (e) {
+    console.error("detail ads fetch error:", e);
+  }
+}
 
 const {
   public: { apiBase = "http://localhost:3002/api" },
@@ -101,7 +149,7 @@ const fetchPostList = async () => {
 const initPage = async () => {
   try {
     await fetchDetail();
-    await fetchPostList();
+    await Promise.all([fetchPostList(), fetchDetailAds()]);
   } finally {
     pending.value = false;
   }

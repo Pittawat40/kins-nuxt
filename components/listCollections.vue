@@ -24,18 +24,19 @@
       </template>
     </div>
 
-    <div v-if="!route.path.startsWith('/detail')" class="ad-banner">
-      <slot name="ad">
-        <div
-          class="ad-placeholder"
-          v-for="(ads, index) in adsList"
-          :key="index"
-        >
-          <a :href="ads.link" target="_blank" rel="noopener noreferrer">
-            <img :src="resolveImgUrl(ads.img)" alt="Advertisement" />
-          </a>
-        </div>
-      </slot>
+    <div
+      v-if="!route.path.startsWith('/detail') && displayedAds.length > 0"
+      class="ad-banner"
+    >
+      <div
+        class="ad-placeholder"
+        v-for="(ads, index) in displayedAds"
+        :key="ads.id"
+      >
+        <a :href="ads.link" target="_blank" rel="noopener noreferrer">
+          <img :src="resolveImgUrl(ads.img)" alt="Advertisement" />
+        </a>
+      </div>
     </div>
 
     <div
@@ -83,6 +84,24 @@ function resolveImgUrl(url) {
 }
 const adsList = ref([]);
 
+// ── ระบบ Rotation: แสดงทีละ 2 อัน หมุนเวียนให้ครบทุกอัน ──────────────────
+const ADS_PER_VIEW = 2;
+
+const displayedAds = computed(() => {
+  if (adsList.value.length === 0) return [];
+  if (adsList.value.length <= ADS_PER_VIEW) return adsList.value;
+
+  // ดึง offset จาก sessionStorage เพื่อให้หมุนต่อเนื่องข้ามหน้า
+  const stored = process.client
+    ? parseInt(sessionStorage.getItem("ads_rotation_offset") || "0", 10)
+    : 0;
+  const result = [];
+  for (let i = 0; i < ADS_PER_VIEW; i++) {
+    result.push(adsList.value[(stored + i) % adsList.value.length]);
+  }
+  return result;
+});
+
 defineProps({
   posts: {
     type: Array,
@@ -98,15 +117,15 @@ defineProps({
   },
   goToPage: {
     type: Function,
-    required: true,
+    required: false,
   },
   nextPage: {
     type: Function,
-    required: true,
+    required: false,
   },
   prevPage: {
     type: Function,
-    required: true,
+    required: false,
   },
 });
 
@@ -120,6 +139,16 @@ async function fetchAds() {
   try {
     const res = await adsApi.list({ status: "published" });
     adsList.value = res.data;
+
+    // เลื่อน offset ไปข้างหน้า ADS_PER_VIEW ทุกครั้งที่โหลด ให้ครบทุกอัน
+    if (process.client && adsList.value.length > ADS_PER_VIEW) {
+      const current = parseInt(
+        sessionStorage.getItem("ads_rotation_offset") || "0",
+        10,
+      );
+      const next = (current + ADS_PER_VIEW) % adsList.value.length;
+      sessionStorage.setItem("ads_rotation_offset", String(next));
+    }
   } catch (e) {
     console.error("banner fetch error", e);
   }
@@ -134,39 +163,6 @@ async function fetchAds() {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-}
-
-/* ── AD BANNER ──────────────────────────── */
-.ad-banner {
-  grid-column: 1 / -1;
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  margin-bottom: 30px;
-  padding-top: 40px;
-  border-top: 1px solid var(--gold);
-}
-
-.ad-placeholder {
-  width: 100%;
-  aspect-ratio: 10 / 3;
-  overflow: hidden;
-  background: rgba(128, 128, 128, 0.08);
-  border: 1px solid rgba(128, 128, 128, 0.3);
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.ad-placeholder img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.ad-placeholder a {
-  height: 100%;
-  width: 100%;
 }
 
 /* ── CARD ───────────────────────────────── */

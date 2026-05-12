@@ -7,10 +7,10 @@
             <h3 class="section-title">
               <i class="bi bi-badge-ad me-2" />Ads Banner List
             </h3>
-            <p class="section-sub">จัดการโฆษณาบนเว็บไซต์ (สูงสุด 2 รูป)</p>
+            <p class="section-sub">จัดการโฆษณาบนเว็บไซต์ (สูงสุด 5 รูป)</p>
           </div>
           <button
-            v-if="adsList.length < 2"
+            v-if="adsList.length < 5"
             class="btn-primary"
             @click="openCreateAd"
           >
@@ -239,8 +239,8 @@ function resolveImgUrl(url) {
 
 // ───── ADS METHODS ─────
 const openCreateAd = () => {
-  if (adsList.value.length >= 2) {
-    props.showToast("สามารถเพิ่มโฆษณาได้สูงสุด 2 รูป", "error");
+  if (adsList.value.length >= 5) {
+    props.showToast("สามารถเพิ่มโฆษณาได้สูงสุด 5 รูป", "error");
     return;
   }
   adForm.value = {
@@ -309,9 +309,9 @@ const saveAd = async () => {
 
   try {
     if (view.value === "create") {
-      if (adsList.value.length >= 2) {
+      if (adsList.value.length >= 5) {
         props.showToast(
-          "ไม่สามารถบันทึกได้ เนื่องจากมีโฆษณาครบ 2 รูปแล้ว",
+          "ไม่สามารถบันทึกได้ เนื่องจากมีโฆษณาครบ 5 รูปแล้ว",
           "error",
         );
         return;
