@@ -215,7 +215,7 @@ async function loadOverview() {
   isSpinning.value = true;
   try {
     const res = await props.dashboardApi.overview();
-    if (res.data) {
+    if (res && res.data) {
       overview.today = res.data.today ?? 0;
       overview.month = res.data.month ?? 0;
       overview.total = res.data.total ?? 0;

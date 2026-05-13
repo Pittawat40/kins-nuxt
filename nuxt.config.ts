@@ -8,6 +8,12 @@ export default defineNuxtConfig({
     preset: "static",
   },
 
+  // 🛠️ เพิ่มตรงนี้: เพื่อสั่งข้ามการทำ Pre-render หน้า Dashboard ไม่ให้การ Build พัง
+  routeRules: {
+    "/dashboard": { prerender: false },
+    "/dashboard/**": { prerender: false },
+  },
+
   // CSS — Bootstrap + custom styles
   css: [
     "bootstrap/dist/css/bootstrap.min.css",
