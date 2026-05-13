@@ -26,8 +26,14 @@
               </div>
             </div>
             <span class="ov-card-value">
-              <span v-if="ovLoading" class="ov-skeleton" />
-              <template v-else>{{ overview.today.toLocaleString() }}</template>
+              <template v-if="ovLoading">0</template>
+              <template v-else>
+                <count-up
+                  :end-val="overview.today"
+                  :duration="2"
+                  :options="{ useGrouping: true, separator: ',' }"
+                />
+              </template>
             </span>
           </div>
 
@@ -41,8 +47,14 @@
               </div>
             </div>
             <span class="ov-card-value">
-              <span v-if="ovLoading" class="ov-skeleton" />
-              <template v-else>{{ overview.month.toLocaleString() }}</template>
+              <template v-if="ovLoading">0</template>
+              <template v-else>
+                <count-up
+                  :end-val="overview.month"
+                  :duration="2"
+                  :options="{ useGrouping: true, separator: ',' }"
+                />
+              </template>
             </span>
           </div>
 
@@ -56,8 +68,14 @@
               </div>
             </div>
             <span class="ov-card-value">
-              <span v-if="ovLoading" class="ov-skeleton" />
-              <template v-else>{{ overview.total.toLocaleString() }}</template>
+              <template v-if="ovLoading">0</template>
+              <template v-else>
+                <count-up
+                  :end-val="overview.total"
+                  :duration="2"
+                  :options="{ useGrouping: true, separator: ',' }"
+                />
+              </template>
             </span>
           </div>
         </div>
@@ -165,6 +183,7 @@
 </template>
 
 <script setup>
+import CountUp from "vue-countup-v3";
 import draggable from "vuedraggable";
 
 const {
@@ -378,16 +397,6 @@ onMounted(async () => {
   font-weight: 600;
   color: var(--text, #1a1a2e);
   line-height: 1.1;
-}
-
-.ov-skeleton {
-  display: inline-block;
-  width: 80px;
-  height: 1.4rem;
-  border-radius: 6px;
-  background: linear-gradient(90deg, #e8e8f0 25%, #f5f5fa 50%, #e8e8f0 75%);
-  background-size: 200% 100%;
-  animation: ov-shimmer 1.2s infinite;
 }
 
 @keyframes ov-shimmer {
