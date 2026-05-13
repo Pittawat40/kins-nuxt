@@ -201,6 +201,9 @@ export const useApi = () => {
       if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
       return data.url;
     },
+    overview() {
+      return apiFetch("/dashboard/overview");
+    },
   };
 
   // ── CONTACT ─────────────────────────────────────────────────
@@ -230,13 +233,10 @@ export const useApi = () => {
 
   // ── ADS ──────────────────────────────────────────────────────
   const ads = {
-    // GET /api/ads?status=active
     list(params = {}) {
       const q = new URLSearchParams(params).toString();
       return apiFetch(`/ads${q ? `?${q}` : ""}`);
     },
-
-    // POST /api/ads — multipart: img (file), link, status
     async create({ file, img, link = "", status = "active" }) {
       const form = new FormData();
       if (file) form.append("img", file);
@@ -254,8 +254,6 @@ export const useApi = () => {
       if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
       return data;
     },
-
-    // PUT /api/ads/:id — multipart: img (optional file), link, status
     async update(id, { file, link, status, img } = {}) {
       const form = new FormData();
       if (file)
@@ -274,12 +272,20 @@ export const useApi = () => {
       if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
       return data;
     },
-
-    // DELETE /api/ads/:id
     delete(id) {
       return apiFetch(`/ads/${id}`, { method: "DELETE" });
     },
+    trackAds(id) {
+      return apiFetch(`/ads/${id}/click`, { method: "POST" });
+    },
   };
 
-  return { auth, posts, banners, dashboard, contact, ads };
+  // ── TRACK ──────────────────────────────────────────────────────
+  const track = {
+    pageview() {
+      return apiFetch("/dashboard/pageview", { method: "POST" });
+    },
+  };
+
+  return { auth, posts, banners, dashboard, contact, ads, track };
 };

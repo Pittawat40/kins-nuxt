@@ -142,7 +142,7 @@ const mobOpen = ref(false);
 const showSearch = ref(false);
 const keyword = ref("");
 
-const { posts: postsApi, contact: contactApi } = useApi();
+const { posts: postsApi, contact: contactApi, track: trackApi } = useApi();
 
 const contactForm = reactive({
   email: "",
@@ -177,6 +177,12 @@ onMounted(async () => {
     { passive: true },
   );
   await fetchContact();
+  if (
+    !route.path.startsWith("/admin") &&
+    !route.path.startsWith("/dashboard")
+  ) {
+    await trackPageView();
+  }
 });
 
 async function fetchContact() {
@@ -193,6 +199,16 @@ async function fetchContact() {
         !Array.isArray(res.data.socials)
           ? res.data.socials
           : {};
+    }
+  } catch (e) {
+  } finally {
+  }
+}
+
+async function trackPageView() {
+  try {
+    const res = await trackApi.pageview();
+    if (res?.data) {
     }
   } catch (e) {
   } finally {

@@ -23,7 +23,7 @@
           v-for="(ads, index) in detailAds"
           :key="ads.id"
         >
-          <a :href="ads.link" target="_blank" rel="noopener noreferrer">
+          <a @click="handleAdClick(ads)" rel="noopener noreferrer">
             <img :src="resolveImgUrl(ads.img)" alt="Advertisement" />
           </a>
         </div>
@@ -111,6 +111,17 @@ function resolveContentImages(html) {
   });
 }
 
+async function handleAdClick(ad) {
+  try {
+    const res = await adsApi.trackAds(ad.id);
+    if (res.success) {
+      window.open(ad.link, "_blank");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 const fetchDetail = async () => {
   try {
     const res = await postsApi.getBySlug("hotels", route.params.slug);
@@ -130,7 +141,7 @@ const fetchPostList = async () => {
 
     postList.value = postsRes.data
       .filter((p) => p.id !== detail.value.id)
-      .slice(0, 3)
+      .slice(0, 2)
       .map((p) => ({
         id: p.id,
         slug: slugify(p.title),
@@ -182,7 +193,7 @@ const slugify = (text) => {
 }
 
 .container-fluid {
-  max-width: 1360px;
+  max-width: 960px;
 }
 
 .title {
@@ -194,6 +205,10 @@ const slugify = (text) => {
   margin-bottom: 20px;
   color: var(--ink-muted);
   text-align: end;
+}
+
+::v-deep .grid-container {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 ::v-deep .mg-img-full {
@@ -210,6 +225,18 @@ const slugify = (text) => {
 ::v-deep .mg-side-text,
 ::v-deep .mg-side-img {
   width: 50%;
+}
+
+::v-deep .mg-caption-block {
+  white-space: pre-line;
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 10px 0 20px;
+}
+
+::v-deep .mg-caption {
+  margin: 10px 0 20px;
 }
 
 /* 2 Images Side by Side */

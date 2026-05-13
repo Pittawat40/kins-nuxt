@@ -734,11 +734,13 @@
                         v-else-if="block.type === 'caption'"
                         class="mg-caption-block-editor"
                       >
-                        <input
+                        <textarea
                           v-model="block.content"
                           class="mg-caption-field"
                           placeholder="Caption text..."
+                          rows="2"
                           @click.stop
+                          @input="autoResize($event)"
                         />
                       </div>
                     </div>
@@ -1288,7 +1290,7 @@ function deserializeBlocks(html) {
       blocks.push({
         id: Date.now() + Math.random(),
         type: "caption",
-        content: el.textContent || "",
+        content: el.innerHTML.replace(/<br\s*\/?>/gi, "\n") || "",
       });
     }
   });
@@ -1315,7 +1317,7 @@ function serializeBlocks() {
         case "quote":
           return `<blockquote class="mg-quote"><p>${b.content}</p>${b.author ? `<cite>${b.author}</cite>` : ""}</blockquote>`;
         case "caption":
-          return `<p class="mg-caption-block">${b.content}</p>`;
+          return `<p class="mg-caption-block">${b.content.replace(/\n/g, "<br>")}</p>`;
         default:
           return "";
       }
@@ -1355,6 +1357,14 @@ function openEdit(item) {
   Object.assign(editForm, JSON.parse(JSON.stringify(item)));
   editorBlocks.value = deserializeBlocks(item.content);
   view.value = "edit";
+
+  // ← resize textarea ทุกอันหลัง render
+  nextTick(() => {
+    document.querySelectorAll(".mg-caption-field").forEach((el) => {
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    });
+  });
 }
 
 async function saveItem() {
@@ -1394,6 +1404,12 @@ async function saveItem() {
   } finally {
     saveLoading.value = false;
   }
+}
+
+function autoResize(e) {
+  const el = e.target;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
 }
 
 function triggerItemImg() {
@@ -2051,6 +2067,11 @@ onMounted(async () => {
   background: transparent;
   outline: none;
   font-style: italic;
+  resize: none; /* ← ซ่อน resize handle */
+  overflow: hidden; /* ← ให้ autoResize ทำงานได้ */
+  min-height: 28px;
+  font-family: inherit;
+  line-height: 1.6;
 }
 
 /* ── NEW: img-pair editor ── */

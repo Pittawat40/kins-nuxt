@@ -33,7 +33,7 @@
         v-for="(ads, index) in displayedAds"
         :key="ads.id"
       >
-        <a :href="ads.link" target="_blank" rel="noopener noreferrer">
+        <a @click="handleAdClick(ads)" rel="noopener noreferrer">
           <img :src="resolveImgUrl(ads.img)" alt="Advertisement" />
         </a>
       </div>
@@ -134,6 +134,17 @@ onMounted(() => {
     fetchAds();
   }
 });
+
+async function handleAdClick(ad) {
+  try {
+    const res = await adsApi.trackAds(ad.id);
+    if (res.success) {
+      window.open(ad.link, "_blank");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 async function fetchAds() {
   try {

@@ -154,8 +154,9 @@ function onMouseMove(e) {
   width: auto; /* ⚠️ ห้ามใส่ 100% เพราะจะทำให้ Safari ดึงขนาดจริงของไฟล์ภาพมา */
   height: 100%; /* บังคับให้รูปสูงเท่าตัว wrap (460px) */
   max-width: 100vw; /* ป้องกันไม่ให้รูปเดี่ยว ๆ กว้างเกินขนาดหน้าจอ */
+  min-width: 100%;
 
-  object-fit: contain; /* หรือใช้ cover ก็ได้ตามความชอบ แต่ contain จะโชว์สัดส่วนรูปเต็ม ๆ */
+  object-fit: cover; /* หรือใช้ cover ก็ได้ตามความชอบ แต่ contain จะโชว์สัดส่วนรูปเต็ม ๆ */
   display: block;
 
   transition:

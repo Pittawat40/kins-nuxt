@@ -9,13 +9,21 @@
             </h3>
             <p class="section-sub">จัดการโฆษณาบนเว็บไซต์ (สูงสุด 5 รูป)</p>
           </div>
-          <button
-            v-if="adsList.length < 5"
-            class="btn-primary"
-            @click="openCreateAd"
-          >
-            <i class="bi bi-plus-lg me-2" />Add Ads
-          </button>
+          <div>
+            <button
+              v-if="adsList.length < 5"
+              class="btn-primary"
+              @click="openCreateAd"
+            >
+              <i class="bi bi-plus-lg me-2" />Add Ads
+            </button>
+            <button class="btn-outline btn-sm ms-2" @click="fetchAds">
+              <i
+                class="bi bi-arrow-clockwise"
+                :class="{ 'spin-animation': isSpinning }"
+              />
+            </button>
+          </div>
         </div>
 
         <div v-if="adsLoading" class="text-center py-4">
@@ -29,13 +37,14 @@
                 <th style="width: 80px">No</th>
                 <th style="width: 150px">Image</th>
                 <th>URL Target</th>
+                <th style="width: 120px">Clicks</th>
                 <th style="width: 120px">Status</th>
                 <th style="width: 120px">Manage</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="adsList.length === 0">
-                <td colspan="5" class="empty-row">
+                <td colspan="6" class="empty-row">
                   <i class="bi bi-inbox" /><br />ยังไม่มีรายการโฆษณา
                 </td>
               </tr>
@@ -69,6 +78,14 @@
                   >
                     {{ ad.link || "ไม่ได้ระบุลิงก์" }}
                   </a>
+                </td>
+                <td>
+                  <div class="clicks-wrap">
+                    <i class="bi bi-cursor-fill clicks-icon" />
+                    <span class="clicks-count">
+                      {{ (ad.total_clicks ?? 0).toLocaleString() }}
+                    </span>
+                  </div>
                 </td>
                 <td>
                   <span class="status-chip" :class="ad.status || 'published'">
@@ -197,7 +214,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 
 const {
   public: { apiBase = "http://localhost:3002/api" },
@@ -215,7 +232,7 @@ onMounted(() => {
 });
 
 // ───── NAVIGATION & VIEW STATE ─────
-const view = ref("list"); // 'list', 'create', 'edit'
+const view = ref("list");
 
 // ───── ADS STATE ─────
 const adsList = ref([]);
@@ -231,6 +248,7 @@ const adForm = ref({
 
 const adImgInput = ref(null);
 const deleteTarget = ref(null);
+const isSpinning = ref(false);
 
 function resolveImgUrl(url) {
   if (!url) return "";
@@ -238,34 +256,36 @@ function resolveImgUrl(url) {
 }
 
 // ───── ADS METHODS ─────
-const openCreateAd = () => {
+function openCreateAd() {
   if (adsList.value.length >= 5) {
     props.showToast("สามารถเพิ่มโฆษณาได้สูงสุด 5 รูป", "error");
     return;
   }
-  adForm.value = {
-    img: null,
-    link: "",
-    status: "published",
-  };
+  adForm.value = { img: null, link: "", status: "published" };
   view.value = "create";
-};
+}
 
-const openEditAd = (ad) => {
+function openEditAd(ad) {
   adForm.value = { ...ad };
   view.value = "edit";
-};
+}
 
-const triggerAdImg = () => {
-  if (adImgInput.value) {
-    adImgInput.value.click();
-  }
-};
+function triggerAdImg() {
+  adImgInput.value?.click();
+}
 
-const onAdImgDrop = (e) => {
+async function onAdImgDrop(e) {
   const file = e.dataTransfer.files[0];
-  if (file) onItemImgDrop(file);
-};
+  if (!file?.type.startsWith("image/")) return;
+  adImgUploading.value = true;
+  try {
+    adForm.value.img = await uploadImageFile(file);
+  } catch (err) {
+    props.showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
+  } finally {
+    adImgUploading.value = false;
+  }
+}
 
 async function onAdImgChange(e) {
   const file = e.target.files[0];
@@ -273,8 +293,7 @@ async function onAdImgChange(e) {
   e.target.value = "";
   adImgUploading.value = true;
   try {
-    const url = await uploadImageFile(file);
-    adForm.value.img = url;
+    adForm.value.img = await uploadImageFile(file);
   } catch (err) {
     props.showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
   } finally {
@@ -282,32 +301,18 @@ async function onAdImgChange(e) {
   }
 }
 
-async function onItemImgDrop(e) {
-  const file = e.dataTransfer.files[0];
-  if (!file?.type.startsWith("image/")) return;
-  adImgUploading.value = true;
-  try {
-    const url = await uploadImageFile(file);
-    adForm.value.img = url;
-  } catch (err) {
-    props.showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
-  } finally {
-    adImgUploading.value = false;
-  }
-}
-
-async function uploadImageFile(file) {
+function uploadImageFile(file) {
   return props.postsApi.uploadImage("ads", file);
 }
 
-const saveAd = async () => {
+async function saveAd() {
   if (!adForm.value.img || !adForm.value.link) {
     props.showToast("กรุณากรอกข้อมูลให้ครบถ้วน", "error");
     return;
   }
   adSaving.value = true;
-
   try {
+    const isFile = adForm.value.img instanceof File;
     if (view.value === "create") {
       if (adsList.value.length >= 5) {
         props.showToast(
@@ -316,17 +321,14 @@ const saveAd = async () => {
         );
         return;
       }
-      // img เป็น File object (จาก input file) หรือ URL string
-      const isFile = adForm.value.img instanceof File;
       await props.adsApi.create({
         file: isFile ? adForm.value.img : undefined,
-        img: isFile ? undefined : adForm.value.img, // กรณีส่งเป็น URL
+        img: isFile ? undefined : adForm.value.img,
         link: adForm.value.link,
         status: adForm.value.status ?? "published",
       });
       props.showToast("เพิ่มโฆษณาแล้ว", "success");
     } else {
-      const isFile = adForm.value.img instanceof File;
       await props.adsApi.update(adForm.value.id, {
         file: isFile ? adForm.value.img : undefined,
         img: isFile ? undefined : adForm.value.img,
@@ -335,24 +337,29 @@ const saveAd = async () => {
       });
       props.showToast("อัพเดทเรียบร้อยแล้ว", "success");
     }
-    await fetchAds(); // reload list จาก server
+    await fetchAds();
     view.value = "list";
   } catch (error) {
     props.showToast(error.message || "เกิดข้อผิดพลาดในการบันทึกโฆษณา", "error");
   } finally {
     adSaving.value = false;
   }
-};
+}
 
 async function fetchAds() {
+  if (isSpinning.value) return;
   adsLoading.value = true;
+  isSpinning.value = true;
   try {
     const res = await props.adsApi.list();
     adsList.value = res.data;
   } catch (e) {
-    console.error("banner fetch error", e);
+    console.error("ads fetch error", e);
   } finally {
     adsLoading.value = false;
+    setTimeout(() => {
+      isSpinning.value = false;
+    }, 500);
   }
 }
 
@@ -383,12 +390,29 @@ async function doDelete() {
   display: flex;
   justify-content: space-between;
 }
+
 .text-primary {
   overflow: hidden;
   text-overflow: ellipsis;
   -webkit-line-clamp: 2;
   display: -webkit-box;
   -webkit-box-orient: vertical;
+}
+
+/* ── Clicks cell ── */
+.clicks-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.clicks-icon {
+  color: #6c63ff;
+  font-size: 0.85rem;
+}
+.clicks-count {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text, #1a1a2e);
 }
 
 ::v-deep .img-dropzone {
