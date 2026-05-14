@@ -152,14 +152,6 @@
                 <option value="published">Published</option>
                 <option value="unpublished">Unpublished</option>
               </select>
-              <!-- <select
-                v-model="filterSort"
-                class="form-select"
-                @change="fetchPosts"
-              >
-                <option value="newest">Newest</option>
-                <option value="oldest">Oldest</option>
-              </select> -->
             </div>
             <div v-if="listLoading" class="text-center py-4">
               <div class="spinner-border spinner-border-sm" role="status" />
@@ -203,7 +195,6 @@
                         @change="toggleSelect(item.id)"
                       />
                     </td>
-
                     <td>
                       <div class="table-img-wrap">
                         <img
@@ -388,7 +379,6 @@
                     >
                       <i class="bi bi-image" />
                     </button>
-                    <!-- ── NEW: 2 Images side by side ── -->
                     <button
                       class="mg-tool"
                       title="2 Images"
@@ -396,13 +386,13 @@
                     >
                       <i class="bi bi-images" />
                     </button>
-                    <button
+                    <!-- <button
                       class="mg-tool"
                       title="Quote"
                       @click="addBlock('quote')"
                     >
                       <i class="bi bi-chat-quote" />
-                    </button>
+                    </button> -->
                     <button
                       class="mg-tool"
                       title="Caption"
@@ -450,26 +440,28 @@
                           <i class="bi bi-trash3" />
                         </button>
                       </div>
+
+                      <!-- ── TEXT ── -->
                       <div v-if="block.type === 'text'" class="mg-text-block">
                         <div class="mg-mini-bar">
                           <button
                             class="mg-mini-btn"
-                            @click.stop="fmtBlock(idx, 'justifyLeft')"
                             title="Align Left"
+                            @click.stop="fmtBlock(idx, 'justifyLeft')"
                           >
                             <i class="bi bi-text-left" />
                           </button>
                           <button
                             class="mg-mini-btn"
-                            @click.stop="fmtBlock(idx, 'justifyCenter')"
                             title="Align Center"
+                            @click.stop="fmtBlock(idx, 'justifyCenter')"
                           >
                             <i class="bi bi-text-center" />
                           </button>
                           <button
                             class="mg-mini-btn"
-                            @click.stop="fmtBlock(idx, 'justifyRight')"
                             title="Align Right"
+                            @click.stop="fmtBlock(idx, 'justifyRight')"
                           >
                             <i class="bi bi-text-right" />
                           </button>
@@ -518,13 +510,63 @@
                           "
                         />
                       </div>
+
+                      <!-- ── TWO-COL ── -->
                       <div
                         v-else-if="block.type === 'two-col'"
                         class="mg-two-col-editor"
                       >
                         <div class="mg-col-wrap">
                           <div class="mg-col-lbl">Column 1</div>
+                          <div class="mg-mini-bar">
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Left"
+                              @click.stop="
+                                fmtColRef(idx, 'col1', 'justifyLeft')
+                              "
+                            >
+                              <i class="bi bi-text-left" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Center"
+                              @click.stop="
+                                fmtColRef(idx, 'col1', 'justifyCenter')
+                              "
+                            >
+                              <i class="bi bi-text-center" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Right"
+                              @click.stop="
+                                fmtColRef(idx, 'col1', 'justifyRight')
+                              "
+                            >
+                              <i class="bi bi-text-right" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtColRef(idx, 'col1', 'bold')"
+                            >
+                              <i class="bi bi-type-bold" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtColRef(idx, 'col1', 'italic')"
+                            >
+                              <i class="bi bi-type-italic" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtColRef(idx, 'col1', 'underline')"
+                            >
+                              <i class="bi bi-type-underline" />
+                            </button>
+                          </div>
                           <div
+                            :ref="(el) => setColRef(el, idx, 'col1')"
                             class="mg-editable"
                             contenteditable="true"
                             data-placeholder="คอลัมน์ซ้าย..."
@@ -534,12 +576,59 @@
                                 syncContent();
                               }
                             "
-                            v-html="block.col1"
                           />
                         </div>
                         <div class="mg-col-wrap">
                           <div class="mg-col-lbl">Column 2</div>
+                          <div class="mg-mini-bar">
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Left"
+                              @click.stop="
+                                fmtColRef(idx, 'col2', 'justifyLeft')
+                              "
+                            >
+                              <i class="bi bi-text-left" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Center"
+                              @click.stop="
+                                fmtColRef(idx, 'col2', 'justifyCenter')
+                              "
+                            >
+                              <i class="bi bi-text-center" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Right"
+                              @click.stop="
+                                fmtColRef(idx, 'col2', 'justifyRight')
+                              "
+                            >
+                              <i class="bi bi-text-right" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtColRef(idx, 'col2', 'bold')"
+                            >
+                              <i class="bi bi-type-bold" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtColRef(idx, 'col2', 'italic')"
+                            >
+                              <i class="bi bi-type-italic" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtColRef(idx, 'col2', 'underline')"
+                            >
+                              <i class="bi bi-type-underline" />
+                            </button>
+                          </div>
                           <div
+                            :ref="(el) => setColRef(el, idx, 'col2')"
                             class="mg-editable"
                             contenteditable="true"
                             data-placeholder="คอลัมน์ขวา..."
@@ -549,16 +638,59 @@
                                 syncContent();
                               }
                             "
-                            v-html="block.col2"
                           />
                         </div>
                       </div>
+
+                      <!-- ── IMG-RIGHT ── -->
                       <div
                         v-else-if="block.type === 'img-right'"
                         class="mg-side-editor mg-side-right"
                       >
                         <div class="mg-side-text-wrap">
+                          <div class="mg-mini-bar">
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Left"
+                              @click.stop="fmtSideRef(idx, 'justifyLeft')"
+                            >
+                              <i class="bi bi-text-left" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Center"
+                              @click.stop="fmtSideRef(idx, 'justifyCenter')"
+                            >
+                              <i class="bi bi-text-center" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Right"
+                              @click.stop="fmtSideRef(idx, 'justifyRight')"
+                            >
+                              <i class="bi bi-text-right" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtSideRef(idx, 'bold')"
+                            >
+                              <i class="bi bi-type-bold" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtSideRef(idx, 'italic')"
+                            >
+                              <i class="bi bi-type-italic" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtSideRef(idx, 'underline')"
+                            >
+                              <i class="bi bi-type-underline" />
+                            </button>
+                          </div>
                           <div
+                            :ref="(el) => setSideRef(el, idx)"
                             class="mg-editable"
                             contenteditable="true"
                             data-placeholder="เขียนเนื้อหา..."
@@ -568,7 +700,6 @@
                                 syncContent();
                               }
                             "
-                            v-html="block.content"
                           />
                         </div>
                         <div
@@ -595,6 +726,8 @@
                           />
                         </div>
                       </div>
+
+                      <!-- ── IMG-LEFT ── -->
                       <div
                         v-else-if="block.type === 'img-left'"
                         class="mg-side-editor mg-side-left"
@@ -623,7 +756,49 @@
                           />
                         </div>
                         <div class="mg-side-text-wrap">
+                          <div class="mg-mini-bar">
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Left"
+                              @click.stop="fmtSideRef(idx, 'justifyLeft')"
+                            >
+                              <i class="bi bi-text-left" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Center"
+                              @click.stop="fmtSideRef(idx, 'justifyCenter')"
+                            >
+                              <i class="bi bi-text-center" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              title="Align Right"
+                              @click.stop="fmtSideRef(idx, 'justifyRight')"
+                            >
+                              <i class="bi bi-text-right" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtSideRef(idx, 'bold')"
+                            >
+                              <i class="bi bi-type-bold" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtSideRef(idx, 'italic')"
+                            >
+                              <i class="bi bi-type-italic" />
+                            </button>
+                            <button
+                              class="mg-mini-btn"
+                              @click.stop="fmtSideRef(idx, 'underline')"
+                            >
+                              <i class="bi bi-type-underline" />
+                            </button>
+                          </div>
                           <div
+                            :ref="(el) => setSideRef(el, idx)"
                             class="mg-editable"
                             contenteditable="true"
                             data-placeholder="เขียนเนื้อหา..."
@@ -633,10 +808,11 @@
                                 syncContent();
                               }
                             "
-                            v-html="block.content"
                           />
                         </div>
                       </div>
+
+                      <!-- ── IMG-FULL ── -->
                       <div
                         v-else-if="block.type === 'img-full'"
                         class="mg-full-img-wrap"
@@ -659,6 +835,7 @@
                         />
                       </div>
 
+                      <!-- ── IMG-PAIR ── -->
                       <div
                         v-else-if="block.type === 'img-pair'"
                         class="mg-img-pair-editor"
@@ -722,11 +899,55 @@
                           </div>
                         </div>
                       </div>
+
+                      <!-- ── QUOTE ── -->
                       <div
                         v-else-if="block.type === 'quote'"
                         class="mg-quote-block"
                       >
+                        <div class="mg-mini-bar">
+                          <button
+                            class="mg-mini-btn"
+                            title="Align Left"
+                            @click.stop="fmtQuoteRef(idx, 'justifyLeft')"
+                          >
+                            <i class="bi bi-text-left" />
+                          </button>
+                          <button
+                            class="mg-mini-btn"
+                            title="Align Center"
+                            @click.stop="fmtQuoteRef(idx, 'justifyCenter')"
+                          >
+                            <i class="bi bi-text-center" />
+                          </button>
+                          <button
+                            class="mg-mini-btn"
+                            title="Align Right"
+                            @click.stop="fmtQuoteRef(idx, 'justifyRight')"
+                          >
+                            <i class="bi bi-text-right" />
+                          </button>
+                          <button
+                            class="mg-mini-btn"
+                            @click.stop="fmtQuoteRef(idx, 'bold')"
+                          >
+                            <i class="bi bi-type-bold" />
+                          </button>
+                          <button
+                            class="mg-mini-btn"
+                            @click.stop="fmtQuoteRef(idx, 'italic')"
+                          >
+                            <i class="bi bi-type-italic" />
+                          </button>
+                          <button
+                            class="mg-mini-btn"
+                            @click.stop="fmtQuoteRef(idx, 'underline')"
+                          >
+                            <i class="bi bi-type-underline" />
+                          </button>
+                        </div>
                         <div
+                          :ref="(el) => setQuoteRef(el, idx)"
                           class="mg-quote-text"
                           contenteditable="true"
                           data-placeholder="คำพูด / Quote..."
@@ -736,7 +957,6 @@
                               syncContent();
                             }
                           "
-                          v-html="block.content"
                         />
                         <input
                           v-model="block.author"
@@ -745,6 +965,8 @@
                           @click.stop
                         />
                       </div>
+
+                      <!-- ── CAPTION ── -->
                       <div
                         v-else-if="block.type === 'caption'"
                         class="mg-caption-block-editor"
@@ -767,7 +989,6 @@
                     class="d-none"
                     @change="onBlockImgChange"
                   />
-                  <!-- ── NEW: hidden input for pair images ── -->
                   <input
                     ref="pairImgInput"
                     type="file"
@@ -886,7 +1107,7 @@
 <script setup>
 useHead({ title: "Dashboard - KIN'S" });
 
-import { ref, reactive, computed, watch } from "vue";
+import { ref, reactive, computed, watch, nextTick } from "vue";
 import Dashboard from "../../components/Dashboard.vue";
 
 definePageMeta({ middleware: "bo-auth" });
@@ -915,18 +1136,15 @@ const navItems = [
   { key: "travel", label: "Travel", icon: "bi-airplane" },
   { key: "lifestyle", label: "Lifestyle", icon: "bi-stars" },
 ];
-
 const currentNav = computed(() =>
   navItems.find((n) => n.key === activeSection.value),
 );
-
 const sectionCount = reactive({
   hotels: 0,
   realestate: 0,
   travel: 0,
   lifestyle: 0,
 });
-
 const currentPage = ref("dashboard");
 
 function handlePage(page) {
@@ -954,7 +1172,6 @@ function resolveBannerUrl(url) {
   if (!url) return "";
   return url.startsWith("http") ? url : `${API_BASE}${url}`;
 }
-
 async function uploadImageFile(file) {
   return postsApi.uploadImage(activeSection.value, file);
 }
@@ -966,9 +1183,9 @@ const listLoading = ref(false);
 const saveLoading = ref(false);
 const search = ref("");
 const filterStatus = ref("");
-// const filterSort = ref("newest");
 const page = ref(1);
 const perPage = ref(10);
+const isSpinning = ref(false);
 const totalPages = computed(() => meta.value.totalPages ?? 1);
 
 let searchTimer = null;
@@ -979,7 +1196,6 @@ function onSearchInput() {
     fetchPosts();
   }, 400);
 }
-
 function onLimitChange() {
   page.value = 1;
   fetchPosts();
@@ -994,16 +1210,11 @@ async function moveItem(item, direction) {
   }
 }
 
-const isSpinning = ref(false);
-
 async function fetchPosts() {
   listLoading.value = true;
   isSpinning.value = true;
   try {
-    const params = {
-      page: page.value,
-      limit: perPage.value,
-    };
+    const params = { page: page.value, limit: perPage.value };
     if (search.value) params.search = search.value;
     if (filterStatus.value) params.status = filterStatus.value;
     const res = await postsApi.list(activeSection.value, params);
@@ -1019,7 +1230,6 @@ async function fetchPosts() {
     }, 500);
   }
 }
-
 function prevPage() {
   if (page.value > 1) {
     page.value--;
@@ -1061,11 +1271,9 @@ async function fetchBanners() {
     console.error("banner fetch error", e);
   }
 }
-
 function triggerUpload() {
   fileInput.value?.click();
 }
-
 async function onFileChange(e) {
   const f = e.target.files[0];
   if (f) await uploadBanner(f);
@@ -1098,7 +1306,6 @@ async function removeBanner(banner) {
 // ── Selection ────────────────────────────────────────
 const selectedIds = ref([]);
 const selectAll = ref(false);
-
 function toggleSelect(id) {
   const idx = selectedIds.value.indexOf(id);
   idx === -1 ? selectedIds.value.push(id) : selectedIds.value.splice(idx, 1);
@@ -1135,19 +1342,21 @@ const editorBlocks = ref([]);
 const activeBlock = ref(null);
 const blockImgInput = ref(null);
 const pendingImgIdx = ref(null);
-const editorRefs = ref({});
+const editorRefs = ref({}); // text blocks
+const colRefs = ref({}); // two-col: key = `${idx}-col1` / `${idx}-col2`
+const sideRefs = ref({}); // img-right / img-left
+const quoteRefs = ref({}); // quote
 
-// ── NEW: pair image state ────────────────────────────
+// ── pair image ───────────────────────────────────────
 const pairImgInput = ref(null);
-const pendingPairIdx = ref(null); // block index
-const pendingPairSlot = ref(null); // 1 or 2
+const pendingPairIdx = ref(null);
+const pendingPairSlot = ref(null);
 
 function triggerPairImg(idx, slot) {
   pendingPairIdx.value = idx;
   pendingPairSlot.value = slot;
   pairImgInput.value?.click();
 }
-
 async function onPairImgChange(e) {
   const file = e.target.files[0];
   if (!file || pendingPairIdx.value === null) return;
@@ -1156,11 +1365,9 @@ async function onPairImgChange(e) {
   const slot = pendingPairSlot.value;
   const uploadKey = `_uploading${slot}`;
   const imgKey = `img${slot}`;
-  const captionKey = `caption${slot}`;
   editorBlocks.value[idx][uploadKey] = true;
   try {
-    const url = await uploadImageFile(file);
-    editorBlocks.value[idx][imgKey] = url;
+    editorBlocks.value[idx][imgKey] = await uploadImageFile(file);
     syncContent();
   } catch (err) {
     showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
@@ -1168,8 +1375,68 @@ async function onPairImgChange(e) {
     editorBlocks.value[idx][uploadKey] = false;
   }
 }
-// ── END pair image state ─────────────────────────────
 
+// ── ref setters ──────────────────────────────────────
+function setEditorRef(el, idx) {
+  if (!el) return;
+  editorRefs.value[idx] = el;
+  if (el.innerHTML !== (editorBlocks.value[idx]?.content || ""))
+    el.innerHTML = editorBlocks.value[idx]?.content || "";
+}
+function setColRef(el, idx, col) {
+  if (!el) return;
+  colRefs.value[`${idx}-${col}`] = el;
+  const val = editorBlocks.value[idx]?.[col] || "";
+  if (el.innerHTML !== val) el.innerHTML = val;
+}
+function setSideRef(el, idx) {
+  if (!el) return;
+  sideRefs.value[idx] = el;
+  const val = editorBlocks.value[idx]?.content || "";
+  if (el.innerHTML !== val) el.innerHTML = val;
+}
+function setQuoteRef(el, idx) {
+  if (!el) return;
+  quoteRefs.value[idx] = el;
+  const val = editorBlocks.value[idx]?.content || "";
+  if (el.innerHTML !== val) el.innerHTML = val;
+}
+
+// ── format helpers ───────────────────────────────────
+function fmtBlock(idx, cmd, val) {
+  const el = editorRefs.value[idx];
+  if (!el) return;
+  el.focus();
+  document.execCommand(cmd, false, val || null);
+  editorBlocks.value[idx].content = el.innerHTML;
+  syncContent();
+}
+function fmtColRef(idx, col, cmd, val) {
+  const el = colRefs.value[`${idx}-${col}`];
+  if (!el) return;
+  el.focus();
+  document.execCommand(cmd, false, val || null);
+  editorBlocks.value[idx][col] = el.innerHTML;
+  syncContent();
+}
+function fmtSideRef(idx, cmd, val) {
+  const el = sideRefs.value[idx];
+  if (!el) return;
+  el.focus();
+  document.execCommand(cmd, false, val || null);
+  editorBlocks.value[idx].content = el.innerHTML;
+  syncContent();
+}
+function fmtQuoteRef(idx, cmd, val) {
+  const el = quoteRefs.value[idx];
+  if (!el) return;
+  el.focus();
+  document.execCommand(cmd, false, val || null);
+  editorBlocks.value[idx].content = el.innerHTML;
+  syncContent();
+}
+
+// ── block management ─────────────────────────────────
 const blockDefaults = {
   text: () => ({ type: "text", content: "" }),
   "two-col": () => ({ type: "two-col", col1: "", col2: "" }),
@@ -1181,7 +1448,6 @@ const blockDefaults = {
   }),
   "img-left": () => ({ type: "img-left", content: "", img: null, caption: "" }),
   "img-full": () => ({ type: "img-full", img: null, caption: "" }),
-  // ── NEW ──
   "img-pair": () => ({
     type: "img-pair",
     img1: null,
@@ -1192,7 +1458,6 @@ const blockDefaults = {
   quote: () => ({ type: "quote", content: "", author: "" }),
   caption: () => ({ type: "caption", content: "" }),
 };
-
 function addBlock(type) {
   editorBlocks.value.push({ id: Date.now(), ...blockDefaults[type]() });
   activeBlock.value = editorBlocks.value.length - 1;
@@ -1213,19 +1478,10 @@ function moveBlock(idx, dir) {
   activeBlock.value = t;
   syncContent();
 }
-function fmtBlock(idx, cmd, val) {
-  const el = editorRefs.value[idx];
-  if (!el) return;
-  el.focus();
-  document.execCommand(cmd, false, val || null);
-  editorBlocks.value[idx].content = el.innerHTML;
-  syncContent();
-}
 function triggerBlockImg(idx) {
   pendingImgIdx.value = idx;
   blockImgInput.value?.click();
 }
-
 async function onBlockImgChange(e) {
   const file = e.target.files[0];
   if (!file || pendingImgIdx.value === null) return;
@@ -1233,8 +1489,7 @@ async function onBlockImgChange(e) {
   const idx = pendingImgIdx.value;
   editorBlocks.value[idx]._uploading = true;
   try {
-    const url = await uploadImageFile(file);
-    editorBlocks.value[idx].img = url;
+    editorBlocks.value[idx].img = await uploadImageFile(file);
     syncContent();
   } catch (err) {
     showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
@@ -1243,9 +1498,9 @@ async function onBlockImgChange(e) {
   }
 }
 
+// ── serialize / deserialize ──────────────────────────
 function deserializeBlocks(html) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+  const doc = new DOMParser().parseFromString(html, "text/html");
   const blocks = [];
   Array.from(doc.body.children).forEach((el) => {
     if (el.classList.contains("mg-text")) {
@@ -1286,7 +1541,6 @@ function deserializeBlocks(html) {
         caption: el.querySelector(".mg-caption")?.textContent || "",
       });
     } else if (el.classList.contains("mg-img-pair")) {
-      // ── NEW deserialize img-pair ──
       const imgs = el.querySelectorAll("img");
       const caps = el.querySelectorAll(".mg-caption");
       blocks.push({
@@ -1317,7 +1571,6 @@ function deserializeBlocks(html) {
   });
   return blocks;
 }
-
 function serializeBlocks() {
   return editorBlocks.value
     .map((b) => {
@@ -1332,7 +1585,6 @@ function serializeBlocks() {
           return `<div class="mg-img-left"><div class="mg-side-img"><img src="${b.img || ""}"/>${b.caption ? `<p class="mg-caption">${b.caption}</p>` : ""}</div><div class="mg-side-text">${b.content}</div></div>`;
         case "img-full":
           return `<div class="mg-img-full"><img src="${b.img || ""}"/>${b.caption ? `<p class="mg-caption">${b.caption}</p>` : ""}</div>`;
-        // ── NEW serialize img-pair ──
         case "img-pair":
           return `<div class="mg-img-pair"><div class="mg-pair-img"><img src="${b.img1 || ""}"/>${b.caption1 ? `<p class="mg-caption">${b.caption1}</p>` : ""}</div><div class="mg-pair-img"><img src="${b.img2 || ""}"/>${b.caption2 ? `<p class="mg-caption">${b.caption2}</p>` : ""}</div></div>`;
         case "quote":
@@ -1364,7 +1616,6 @@ const blankForm = () => ({
   status: "published",
   date: new Date().toISOString().slice(0, 10),
 });
-
 const editForm = reactive(blankForm());
 
 function openCreate() {
@@ -1373,13 +1624,10 @@ function openCreate() {
   activeBlock.value = null;
   view.value = "create";
 }
-
 function openEdit(item) {
   Object.assign(editForm, JSON.parse(JSON.stringify(item)));
   editorBlocks.value = deserializeBlocks(item.content);
   view.value = "edit";
-
-  // ← resize textarea ทุกอันหลัง render
   nextTick(() => {
     document.querySelectorAll(".mg-caption-field").forEach((el) => {
       el.style.height = "auto";
@@ -1432,7 +1680,6 @@ function autoResize(e) {
   el.style.height = "auto";
   el.style.height = el.scrollHeight + "px";
 }
-
 function triggerItemImg() {
   itemImgInput.value?.click();
 }
@@ -1443,22 +1690,19 @@ async function onItemImgChange(e) {
   e.target.value = "";
   imgUploading.value = true;
   try {
-    const url = await uploadImageFile(file);
-    editForm.img = url;
+    editForm.img = await uploadImageFile(file);
   } catch (err) {
     showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
   } finally {
     imgUploading.value = false;
   }
 }
-
 async function onItemImgDrop(e) {
   const file = e.dataTransfer.files[0];
   if (!file?.type.startsWith("image/")) return;
   imgUploading.value = true;
   try {
-    const url = await uploadImageFile(file);
-    editForm.img = url;
+    editForm.img = await uploadImageFile(file);
   } catch (err) {
     showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
   } finally {
@@ -1471,13 +1715,9 @@ const deleteTarget = ref(null);
 function confirmDelete(item) {
   deleteTarget.value = item;
 }
-
 function checkDelete() {
-  if (deleteTarget.value === "all") {
-    bulkDelete();
-  } else doDelete();
+  deleteTarget.value === "all" ? bulkDelete() : doDelete();
 }
-
 async function doDelete() {
   try {
     await postsApi.delete(activeSection.value, deleteTarget.value.id);
@@ -1510,14 +1750,6 @@ function showToast(msg, type = "success") {
 async function handleLogout() {
   await auth.logout();
   router.push("/admin");
-}
-
-function setEditorRef(el, idx) {
-  if (!el) return;
-  editorRefs.value[idx] = el;
-  if (el.innerHTML !== (editorBlocks.value[idx]?.content || "")) {
-    el.innerHTML = editorBlocks.value[idx]?.content || "";
-  }
 }
 
 // ── Init ─────────────────────────────────────────────
@@ -1653,7 +1885,6 @@ onMounted(async () => {
   color: var(--ink);
   display: block;
 }
-
 .d-none {
   display: none;
 }
@@ -1774,7 +2005,6 @@ onMounted(async () => {
   justify-content: flex-end;
   flex-wrap: wrap;
 }
-
 .img-preview {
   width: 100%;
   height: 100%;
@@ -1792,7 +2022,9 @@ onMounted(async () => {
   border-radius: 8px 8px 0 0;
   padding: 8px 12px;
   background: #f9f9f7;
-  border-bottom: none;
+  z-index: 99;
+  position: sticky;
+  top: 60px;
 }
 .mg-toolbar-label {
   font-size: 10px;
@@ -1818,9 +2050,11 @@ onMounted(async () => {
 .mg-tool:hover {
   background: var(--border);
 }
+
 .mg-blocks {
   border: 1px solid var(--border);
   border-radius: 0 0 8px 8px;
+  border-top: none;
   background: #fff;
   min-height: 400px;
   padding: 20px;
@@ -1846,6 +2080,7 @@ onMounted(async () => {
   border-color: var(--accent);
   color: var(--accent);
 }
+
 .mg-block {
   position: relative;
   border: 1.5px solid transparent;
@@ -1861,6 +2096,7 @@ onMounted(async () => {
 .mg-block-active {
   border-color: var(--accent) !important;
 }
+
 .mg-ctrl {
   position: absolute;
   top: 6px;
@@ -1875,6 +2111,7 @@ onMounted(async () => {
 .mg-block-active .mg-ctrl {
   opacity: 1;
 }
+
 .mg-ctrl-btn {
   width: 24px;
   height: 24px;
@@ -1901,11 +2138,13 @@ onMounted(async () => {
   border-color: var(--danger) !important;
   color: var(--danger) !important;
 }
+
 .mg-text-block {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
 .mg-mini-bar {
   display: flex;
   align-items: center;
@@ -1913,6 +2152,7 @@ onMounted(async () => {
   padding: 4px 6px;
   background: #f4f4f2;
   border-radius: 4px;
+  margin-bottom: 4px;
 }
 .mg-mini-btn {
   width: 24px;
@@ -1944,6 +2184,7 @@ onMounted(async () => {
   background: #fff;
   color: var(--ink);
 }
+
 .mg-editable {
   min-height: 80px;
   padding: 10px 12px;
@@ -1966,6 +2207,7 @@ onMounted(async () => {
   color: #bbb;
   pointer-events: none;
 }
+
 .mg-two-col-editor {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1982,6 +2224,7 @@ onMounted(async () => {
   text-transform: uppercase;
   color: var(--muted);
 }
+
 .mg-side-editor {
   display: grid;
   gap: 18px;
@@ -2007,6 +2250,7 @@ onMounted(async () => {
   display: block;
   object-fit: cover;
 }
+
 .mg-full-img-wrap {
   display: flex;
   flex-direction: column;
@@ -2018,6 +2262,7 @@ onMounted(async () => {
   border-radius: 4px;
   display: block;
 }
+
 .mg-img-ph {
   aspect-ratio: 4/3;
   border: 1.5px dashed var(--border);
@@ -2045,6 +2290,7 @@ onMounted(async () => {
   font-size: 11px;
   color: var(--accent);
 }
+
 .mg-caption-inp {
   width: 100%;
   border: none;
@@ -2059,6 +2305,7 @@ onMounted(async () => {
 .mg-caption-inp::placeholder {
   color: #ccc;
 }
+
 .mg-quote-block {
   border-left: 3px solid var(--ink);
   padding: 14px 18px;
@@ -2089,6 +2336,7 @@ onMounted(async () => {
   font-size: 12px;
   color: var(--muted);
 }
+
 .mg-caption-block-editor {
   padding: 4px 0;
 }
@@ -2102,24 +2350,17 @@ onMounted(async () => {
   background: transparent;
   outline: none;
   font-style: italic;
-  resize: none; /* ← ซ่อน resize handle */
-  overflow: hidden; /* ← ให้ autoResize ทำงานได้ */
+  resize: none;
+  overflow: hidden;
   min-height: 28px;
   font-family: inherit;
   line-height: 1.6;
 }
 
-/* ── NEW: img-pair editor ── */
 .mg-img-pair-editor {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-.mg-pair-col-lbl {
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--muted);
 }
 .mg-img-pair-grid {
   display: grid;
@@ -2132,137 +2373,6 @@ onMounted(async () => {
   gap: 4px;
 }
 
-/* ── CONTACT PAGE ── */
-.contact-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.contact-block {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.contact-block-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
-  background: #f9f9f7;
-  border-bottom: 1px solid var(--border);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.contact-block-body {
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.contact-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  background: #f9f9f7;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  transition: border-color 0.2s;
-}
-
-.contact-row:hover {
-  border-color: #ccc;
-}
-
-.contact-row-num {
-  margin-bottom: 10px;
-  width: 24px;
-  height: 24px;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.contact-remove-btn {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 7px;
-  color: var(--danger);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  align-self: center;
-  transition: all 0.18s;
-  margin-top: 20px;
-}
-
-.contact-remove-btn:hover:not(:disabled) {
-  border-color: var(--danger);
-  background: #fff5f5;
-}
-
-.contact-remove-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-.contact-add-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--accent);
-  background: var(--surface);
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  padding: 6px 13px;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.18s;
-}
-
-.contact-add-btn:hover {
-  background: #dce8ff;
-}
-
-.contact-empty {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--muted);
-  padding: 20px 0 10px;
-}
-
-.contact-empty .bi {
-  font-size: 18px;
-}
-
-.contact-save-row {
-  display: flex;
-  justify-content: flex-end;
-  padding-bottom: 8px;
-}
-
 @media (max-width: 1100px) {
   .form-layout {
     grid-template-columns: 1fr;
@@ -2273,28 +2383,23 @@ onMounted(async () => {
   .sidebar {
     width: var(--sc) !important;
   }
-
   .sidebar .logo-text,
   .sidebar .nav-label,
   .sidebar .nav-badge,
   .sidebar .nav-group-label {
     display: none;
   }
-
   .main-content {
     margin-left: var(--sc) !important;
     width: calc(100% - var(--sc));
     padding-bottom: 14px;
   }
-
   .form-layout {
     grid-template-columns: 1fr;
   }
-
   .list-filters {
     flex-direction: column;
   }
-
   .item-title {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2302,26 +2407,21 @@ onMounted(async () => {
     display: -webkit-box;
     -webkit-box-orient: vertical;
   }
-
   .search-wrap {
     min-width: 100%;
   }
-
   .topbar {
     padding: 0 12px;
   }
-
   .mg-two-col-editor,
   .mg-side-right,
   .mg-side-left,
   .mg-img-pair-grid {
     grid-template-columns: 1fr;
   }
-
   .contact-row {
     flex-wrap: wrap;
   }
-
   .item-excerpt {
     display: none;
   }
