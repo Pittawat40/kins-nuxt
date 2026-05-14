@@ -186,7 +186,7 @@
                 </thead>
                 <tbody>
                   <tr v-if="pagedItems.length === 0">
-                    <td colspan="6" class="empty-row">
+                    <td colspan="8" class="empty-row">
                       <i class="bi bi-inbox" /><br />ยังไม่มีรายการ
                     </td>
                   </tr>
