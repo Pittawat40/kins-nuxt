@@ -194,7 +194,7 @@ function onMouseMove(e) {
   max-width: 400px;
   font-size: 0.9rem;
   font-weight: 400;
-  color: #ffa735;
+  color: var(--ink-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   -webkit-line-clamp: 2;
