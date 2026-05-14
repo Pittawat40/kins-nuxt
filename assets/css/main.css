@@ -712,10 +712,10 @@ video {
   align-items: center;
   justify-content: space-between;
 }
+.img-main-dropzone,
 .img-dropzone {
   border: 1.5px dashed var(--border);
   border-radius: 7px;
-  aspect-ratio: 16/9;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -723,8 +723,18 @@ video {
   overflow: hidden;
   transition: border-color 0.2s;
 }
+
+.img-main-dropzone:hover,
 .img-dropzone:hover {
   border-color: var(--accent);
+}
+
+.img-main-dropzone {
+  aspect-ratio: 3 / 2;
+}
+
+.img-dropzone {
+  aspect-ratio: 16 / 9;
 }
 .img-placeholder {
   text-align: center;

@@ -28,8 +28,9 @@ defineProps({
 
 <style scoped>
 .section-banner {
+  margin-top: 60px;
   width: 100%;
-  height: 500px;
+  height: 600px;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

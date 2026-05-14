@@ -7,7 +7,9 @@
 
     <!-- Loaded -->
     <template v-else>
-      <Banner :bannerImage="`${resolveImgUrl(detail.img)}`" />
+      <Banner
+        :bannerImage="`${resolveImgUrl(detail.bannerImg || detail.img)}`"
+      />
       <div class="container-fluid px-3 px-lg-5 mt-4">
         <div class="title">{{ detail.title }}</div>
         <div class="html-desc" v-html="detail.content"></div>

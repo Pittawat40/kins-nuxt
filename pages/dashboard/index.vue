@@ -219,7 +219,7 @@
                     <td>
                       <div class="views-cell">
                         <i class="bi bi-eye views-icon" />
-                        {{ (item.total_views ?? 0).toLocaleString() }}
+                        {{ (item.totalViews ?? 0).toLocaleString() }}
                       </div>
                     </td>
                     <td class="date-cell">{{ item.date }}</td>
@@ -1007,7 +1007,7 @@
                     >
                   </div>
                   <div
-                    class="img-dropzone"
+                    class="img-main-dropzone"
                     @click="triggerItemImg"
                     @dragover.prevent
                     @drop.prevent="onItemImgDrop"
@@ -1037,6 +1037,41 @@
                   />
                   <button v-if="editForm.img" class="remove-img-btn">
                     <i class="bi bi-trash3" @click="editForm.img = null" />
+                  </button>
+                  <div class="side-box-title mt-3">แบนเนอร์</div>
+                  <div
+                    class="img-dropzone"
+                    @click="triggerBannerImg"
+                    @dragover.prevent
+                    @drop.prevent="onBannerImgDrop"
+                  >
+                    <img
+                      v-if="editForm.bannerImg"
+                      :src="resolveImgUrl(editForm.bannerImg)"
+                      class="img-preview"
+                    />
+                    <div v-else-if="bannerImgUploading" class="img-placeholder">
+                      <div class="spinner-border spinner-border-sm" />
+                      <span>กำลังอัปโหลด...</span>
+                    </div>
+                    <div v-else class="img-placeholder">
+                      <i class="bi bi-image" /><span>คลิกหรือลากไฟล์</span>
+                    </div>
+                  </div>
+
+                  <!-- input file แยก -->
+                  <input
+                    ref="bannerImgInput"
+                    type="file"
+                    accept="image/*"
+                    class="d-none"
+                    @change="onBannerImgChange"
+                  />
+                  <button v-if="editForm.bannerImg" class="remove-img-btn">
+                    <i
+                      class="bi bi-trash3"
+                      @click="editForm.bannerImg = null"
+                    />
                   </button>
                 </div>
                 <div class="side-box">
@@ -1613,6 +1648,7 @@ const blankForm = () => ({
   description: "",
   content: "",
   img: null,
+  bannerImg: null,
   status: "published",
   date: new Date().toISOString().slice(0, 10),
 });
@@ -1656,6 +1692,7 @@ async function saveItem() {
       description: editForm.description,
       content: editForm.content,
       img: editForm.img,
+      bannerImg: editForm.bannerImg,
       status: editForm.status,
       date: editForm.date,
     };
@@ -1697,6 +1734,41 @@ async function onItemImgChange(e) {
     imgUploading.value = false;
   }
 }
+
+const bannerImgInput = ref(null);
+const bannerImgUploading = ref(false);
+
+function triggerBannerImg() {
+  bannerImgInput.value?.click();
+}
+
+async function onBannerImgChange(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = "";
+  bannerImgUploading.value = true;
+  try {
+    editForm.bannerImg = await uploadImageFile(file);
+  } catch (err) {
+    showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
+  } finally {
+    bannerImgUploading.value = false;
+  }
+}
+
+async function onBannerImgDrop(e) {
+  const file = e.dataTransfer.files[0];
+  if (!file?.type.startsWith("image/")) return;
+  bannerImgUploading.value = true;
+  try {
+    editForm.bannerImg = await uploadImageFile(file);
+  } catch (err) {
+    showToast(err.message || "อัปโหลดรูปไม่สำเร็จ", "error");
+  } finally {
+    bannerImgUploading.value = false;
+  }
+}
+
 async function onItemImgDrop(e) {
   const file = e.dataTransfer.files[0];
   if (!file?.type.startsWith("image/")) return;
