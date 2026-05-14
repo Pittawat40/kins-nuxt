@@ -997,7 +997,6 @@ async function moveItem(item, direction) {
 const isSpinning = ref(false);
 
 async function fetchPosts() {
-  if (isSpinning.value) return;
   listLoading.value = true;
   isSpinning.value = true;
   try {
