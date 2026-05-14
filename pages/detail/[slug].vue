@@ -201,7 +201,7 @@ const slugify = (text) => {
 }
 
 .container-fluid {
-  max-width: 960px;
+  max-width: 1200px;
 }
 
 .title {

@@ -132,3 +132,9 @@ const slugify = (text) => {
     .replace(/-+/g, "-"); // ลด - ซ้ำ
 };
 </script>
+
+<style scoped>
+.container-fluid {
+  max-width: 1400px;
+}
+</style>

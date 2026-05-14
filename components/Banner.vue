@@ -29,7 +29,7 @@ defineProps({
 <style scoped>
 .section-banner {
   width: 100%;
-  height: 600px;
+  height: 500px;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -43,7 +43,7 @@ h2 {
 
 @media (max-width: 767px) {
   .section-banner {
-    height: 500px;
+    height: 300px;
   }
 }
 </style>

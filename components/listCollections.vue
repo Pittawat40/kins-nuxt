@@ -176,6 +176,10 @@ async function fetchAds() {
   gap: 20px;
 }
 
+.container-fluid {
+  max-width: 1400px;
+}
+
 /* ── CARD ───────────────────────────────── */
 .post-card {
   position: relative;
@@ -237,7 +241,7 @@ async function fetchAds() {
 .card-excerpt {
   margin-bottom: 8px;
   font-size: 14px;
-  color: #ffa735;
+  color: var(--ink-muted);
   line-height: 1.6;
   overflow: hidden;
   text-overflow: ellipsis;
