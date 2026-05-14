@@ -121,9 +121,17 @@
                 <h3 class="section-title">Content List</h3>
                 <p class="section-sub">ทั้งหมด {{ meta.total ?? 0 }} รายการ</p>
               </div>
-              <button class="btn-primary" @click="openCreate">
-                <i class="bi bi-plus-lg me-2" />Add Content
-              </button>
+              <div>
+                <button class="btn-primary" @click="openCreate">
+                  <i class="bi bi-plus-lg me-2" />Add Content
+                </button>
+                <button class="btn-outline btn-sm ms-2" @click="fetchPosts">
+                  <i
+                    class="bi bi-arrow-clockwise"
+                    :class="{ 'spin-animation': isSpinning }"
+                  />
+                </button>
+              </div>
             </div>
             <div class="list-filters">
               <div class="search-wrap">
@@ -169,6 +177,7 @@
                     </th>
                     <th style="width: 80px">Image</th>
                     <th>Title</th>
+                    <th style="width: 80px">Views</th>
                     <th style="width: 105px">Date</th>
                     <th style="width: 105px">Status</th>
                     <th style="width: 90px">Sort</th>
@@ -214,6 +223,12 @@
                       </div>
                       <div class="item-excerpt">
                         {{ stripHtml(item.content) }}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="views-cell">
+                        <i class="bi bi-eye views-icon" />
+                        {{ (item.total_views ?? 0).toLocaleString() }}
                       </div>
                     </td>
                     <td class="date-cell">{{ item.date }}</td>
@@ -979,8 +994,12 @@ async function moveItem(item, direction) {
   }
 }
 
+const isSpinning = ref(false);
+
 async function fetchPosts() {
+  if (isSpinning.value) return;
   listLoading.value = true;
+  isSpinning.value = true;
   try {
     const params = {
       page: page.value,
@@ -996,6 +1015,9 @@ async function fetchPosts() {
     showToast(e.message || "โหลดข้อมูลไม่ได้", "error");
   } finally {
     listLoading.value = false;
+    setTimeout(() => {
+      isSpinning.value = false;
+    }, 500);
   }
 }
 
@@ -1512,6 +1534,20 @@ onMounted(async () => {
   color: #1c1b18;
   display: flex;
   min-height: 100vh;
+}
+
+.views-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.views-icon {
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .sidebar {
@@ -2238,38 +2274,55 @@ onMounted(async () => {
   .sidebar {
     width: var(--sc) !important;
   }
+
   .sidebar .logo-text,
   .sidebar .nav-label,
   .sidebar .nav-badge,
   .sidebar .nav-group-label {
     display: none;
   }
+
   .main-content {
     margin-left: var(--sc) !important;
     width: calc(100% - var(--sc));
     padding-bottom: 14px;
   }
+
   .form-layout {
     grid-template-columns: 1fr;
   }
+
   .list-filters {
     flex-direction: column;
   }
+
+  .item-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+
   .search-wrap {
     min-width: 100%;
   }
+
   .topbar {
     padding: 0 12px;
   }
+
   .mg-two-col-editor,
   .mg-side-right,
   .mg-side-left,
   .mg-img-pair-grid {
     grid-template-columns: 1fr;
   }
+
   .contact-row {
     flex-wrap: wrap;
   }
+
   .item-excerpt {
     display: none;
   }

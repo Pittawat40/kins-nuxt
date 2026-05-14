@@ -282,8 +282,11 @@ export const useApi = () => {
 
   // ── TRACK ──────────────────────────────────────────────────────
   const track = {
-    pageview() {
+    pageView() {
       return apiFetch("/dashboard/pageview", { method: "POST" });
+    },
+    contentView(section, id) {
+      return apiFetch(`/${section}/posts/${id}/view`, { method: "POST" });
     },
   };
 

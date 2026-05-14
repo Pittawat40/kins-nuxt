@@ -52,7 +52,7 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const { posts: postsApi, ads: adsApi } = useApi();
+const { posts: postsApi, ads: adsApi, track: trackApi } = useApi();
 
 const pending = ref(true);
 const detail = ref({});
@@ -132,6 +132,14 @@ const fetchDetail = async () => {
   }
 };
 
+const trackContentView = async () => {
+  try {
+    await trackApi.contentView(detail.value.section, detail.value.id);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const fetchPostList = async () => {
   try {
     const postsRes = await postsApi.list(detail.value.section, {
@@ -160,7 +168,7 @@ const fetchPostList = async () => {
 const initPage = async () => {
   try {
     await fetchDetail();
-    await Promise.all([fetchPostList(), fetchDetailAds()]);
+    await Promise.all([fetchPostList(), fetchDetailAds(), trackContentView()]);
   } finally {
     pending.value = false;
   }

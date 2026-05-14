@@ -207,11 +207,9 @@ async function fetchContact() {
 
 async function trackPageView() {
   try {
-    const res = await trackApi.pageview();
-    if (res?.data) {
-    }
+    await trackApi.pageView();
   } catch (e) {
-  } finally {
+    console.log(e);
   }
 }
 
