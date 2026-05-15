@@ -518,7 +518,7 @@ img {
 @media (max-width: 767px) {
   .hero {
     margin-top: 50px;
-    height: 30dvh;
+    height: 300px;
   }
   .hero-si,
   .hero-counter {
