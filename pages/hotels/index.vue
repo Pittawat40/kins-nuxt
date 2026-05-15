@@ -138,4 +138,10 @@ const slugify = (text) => {
 .container-fluid {
   max-width: 1400px;
 }
+
+@media (max-width: 767px) {
+  .container-fluid {
+    margin-top: 1.5rem !important;
+  }
+}
 </style>

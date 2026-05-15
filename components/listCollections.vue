@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid px-3 px-lg-5 mb-3">
+  <div class="container-fluid px-3 px-lg-5 mb-3 section">
     <div class="grid-container">
       <template v-for="(post, index) in posts" :key="post.id">
         <div
@@ -264,20 +264,26 @@ async function fetchAds() {
     padding-top: 20px;
     margin-top: 10px;
   }
-  .card-img-wrap {
+  /* .card-img-wrap {
     aspect-ratio: 16 / 9;
+  } */
+  .grid-container {
+    margin: 0;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .section {
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 }
 
 @media (max-width: 540px) {
   .hero-banner {
     padding: 32px 24px 48px;
-  }
-  .grid-container {
-    margin: 0;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    /* padding: 10px !important; */
   }
 }
 </style>
