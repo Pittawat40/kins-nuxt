@@ -232,5 +232,13 @@ function onMouseMove(e) {
   .ccnt {
     width: 100%;
   }
+
+  .cname {
+    font-size: 1rem;
+  }
+
+  .ccnt {
+    font-size: 0.8rem;
+  }
 }
 </style>

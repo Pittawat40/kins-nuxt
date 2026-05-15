@@ -279,6 +279,10 @@ async function fetchAds() {
     flex-direction: column;
     justify-content: space-between;
   }
+
+  .card-title {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 540px) {
