@@ -21,8 +21,9 @@
 
           <!-- Logo -->
           <!-- <img src="~/assets/images/logo.png" alt="KIN'S" class="logo-img" /> -->
-          <NuxtLink to="/" class="logo">KIN'S</NuxtLink>
-
+          <h1>
+            <NuxtLink to="/" class="logo">KIN'S</NuxtLink>
+          </h1>
           <!-- Social + Contact -->
           <div class="d-none d-lg-flex align-items-center gap-3">
             <div class="nsoc">
