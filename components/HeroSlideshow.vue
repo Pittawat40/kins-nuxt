@@ -237,7 +237,7 @@ img {
 .hero {
   position: relative;
   height: 100dvh;
-  min-height: 680px;
+  /* min-height: 680px; */
   overflow: hidden;
   display: flex;
   align-items: flex-end;
@@ -516,6 +516,9 @@ img {
 }
 
 @media (max-width: 767px) {
+  .hero {
+    height: 40dvh;
+  }
   .hero-si,
   .hero-counter {
     display: none !important;
