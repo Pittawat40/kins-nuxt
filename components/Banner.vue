@@ -44,7 +44,7 @@ h2 {
 
 @media (max-width: 767px) {
   .section-banner {
-    height: 280px;
+    height: 270px;
   }
 }
 </style>

@@ -264,6 +264,9 @@ async function fetchAds() {
     padding-top: 20px;
     margin-top: 10px;
   }
+  .card-img-wrap {
+    aspect-ratio: 16 / 9;
+  }
 }
 
 @media (max-width: 540px) {
