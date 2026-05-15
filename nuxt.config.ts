@@ -33,23 +33,33 @@ export default defineNuxtConfig({
   // App head meta
   app: {
     head: {
-      title: "KIN'S",
+      title: "KIN'S | Travel & Lifestyle",
+      htmlAttrs: {
+        lang: "th", // บอก Google ว่านี่คือเว็บภาษาไทย
+      },
       meta: [
         { charset: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         {
           name: "description",
-          content: "Travel & Lifestyle",
+          content: "KIN'S | Travel & Lifestyle",
         },
-        { property: "og:title", content: "KIN'S" },
+        {
+          name: "keywords",
+          content: "KIN'S, kins, kinsofficialth, Travel Lifestyle, รีวิวที่พัก",
+        },
+        { property: "og:title", content: "KIN'S | Travel & Lifestyle" },
         {
           property: "og:description",
-          content: "Travel & Lifestyle",
+          content: "KIN'S | Travel & Lifestyle",
         },
         { property: "og:type", content: "website" },
+        { property: "og:url", content: "https://www.kinsofficialth.com" },
       ],
       link: [
+        { rel: "canonical", href: "https://www.kinsofficialth.com" },
         { rel: "icon", type: "image/png", href: "/favicon.png" },
+        { rel: "apple-touch-icon", href: "/favicon.png" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         {
           rel: "preconnect",
