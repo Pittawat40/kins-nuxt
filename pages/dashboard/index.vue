@@ -1038,7 +1038,7 @@
                   <button v-if="editForm.img" class="remove-img-btn">
                     <i class="bi bi-trash3" @click="editForm.img = null" />
                   </button>
-                  <div class="side-box-title mt-3">แบนเนอร์</div>
+                  <div class="side-box-title">แบนเนอร์</div>
                   <div
                     class="img-dropzone"
                     @click="triggerBannerImg"
@@ -1074,7 +1074,7 @@
                     />
                   </button>
                 </div>
-                <div class="side-box">
+                <div class="side-box mt-1">
                   <div class="side-box-title">โพสต์</div>
                   <div class="form-field">
                     <label>สถานะการแสดงผล</label>
@@ -1091,7 +1091,7 @@
                       class="field-input"
                     />
                   </div>
-                  <div class="side-actions mt-3">
+                  <div class="side-actions mt-1">
                     <button
                       class="btn-primary btn sm px-3 py-2 w-100"
                       :disabled="saveLoading || imgUploading"
