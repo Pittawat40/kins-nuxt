@@ -18,7 +18,7 @@
       <!-- ADS BANNER ใต้ content detail -->
       <div
         v-if="detailAds.length > 0"
-        class="container-fluid px-3 px-lg-5 mt-4"
+        class="container-fluid px-3 px-lg-5 mt-4 mb-3"
       >
         <div
           class="ad-placeholder"
@@ -32,19 +32,20 @@
       </div>
 
       <!-- GRID -->
-      <div class="container-fluid px-3 px-lg-5 mt-4 mt-lg-5">
-        <div class="d-flex align-items-end justify-content-between">
-          <div>
-            <span class="sec-rule" />
-            <p class="t-label mb-2">{{ detail.section }}</p>
-            <h2 class="t-h2" style="color: var(--ink-muted)">
-              Latest Collections
-            </h2>
+      <template v-if="postList.length">
+        <div class="container-fluid px-3 px-lg-5 mt-4 mt-lg-5">
+          <div class="d-flex align-items-end justify-content-between">
+            <div>
+              <span class="sec-rule" />
+              <p class="t-label mb-2">{{ detail.section }}</p>
+              <h2 class="t-h2" style="color: var(--ink-muted)">
+                Latest Collections
+              </h2>
+            </div>
           </div>
         </div>
-      </div>
-
-      <listCollections :posts="postList" />
+        <listCollections :posts="postList" />
+      </template>
     </template>
   </div>
 </template>

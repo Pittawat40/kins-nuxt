@@ -1,5 +1,8 @@
 <template>
-  <div class="container-fluid px-3 px-lg-5 mb-3 section">
+  <div
+    class="container-fluid px-3 px-lg-5 mb-3 section"
+    :class="route.path.startsWith('/detail') ? 'section-detail' : ''"
+  >
     <div class="grid-container">
       <template v-for="(post, index) in posts" :key="post.id">
         <div
@@ -271,6 +274,10 @@ async function fetchAds() {
     margin: 0;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+
+  .section-detail {
+    min-height: 0 !important;
   }
 
   .section {
