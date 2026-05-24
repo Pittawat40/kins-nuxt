@@ -26,22 +26,6 @@
         </div>
       </template>
     </div>
-
-    <div
-      v-if="!route.path.startsWith('/detail') && displayedAds.length > 0"
-      class="ad-banner"
-    >
-      <div
-        class="ad-placeholder"
-        v-for="(ads, index) in displayedAds"
-        :key="ads.id"
-      >
-        <a @click="handleAdClick(ads)" rel="noopener noreferrer">
-          <img :src="resolveImgUrl(ads.img)" alt="Advertisement" />
-        </a>
-      </div>
-    </div>
-
     <div
       v-if="meta.totalPages > 1"
       class="pagination container-fluid px-3 px-lg-5"
@@ -65,6 +49,20 @@
       >
         ›
       </button>
+    </div>
+    <div
+      v-if="!route.path.startsWith('/detail') && displayedAds.length > 0"
+      class="ad-banner"
+    >
+      <div
+        class="ad-placeholder"
+        v-for="(ads, index) in displayedAds"
+        :key="ads.id"
+      >
+        <a @click="handleAdClick(ads)" rel="noopener noreferrer">
+          <img :src="resolveImgUrl(ads.img)" alt="Advertisement" />
+        </a>
+      </div>
     </div>
   </div>
 </template>
