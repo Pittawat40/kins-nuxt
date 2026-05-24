@@ -58,7 +58,12 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: "canonical", href: "https://www.kinsofficialth.com" },
-        { rel: "icon", type: "image/png", href: "/favicon.png" },
+        {
+          rel: "icon",
+          type: "image/png",
+          href: "/favicon.png",
+          sizes: "48x48",
+        },
         { rel: "apple-touch-icon", href: "/favicon.png" },
         { rel: "preconnect", href: "https://fonts.googleapis.com" },
         {
