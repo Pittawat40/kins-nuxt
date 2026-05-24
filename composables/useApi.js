@@ -12,12 +12,37 @@ export const useApi = () => {
     ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {}),
   });
 
+  function handleTokenExpired() {
+    if (!process.client) return;
+    localStorage.removeItem("valeur_token");
+    localStorage.removeItem("valeur_user");
+    localStorage.removeItem("valeur_expires_at");
+    window.dispatchEvent(new CustomEvent("token-expired"));
+  }
+
   async function apiFetch(endpoint, options = {}) {
     const res = await fetch(`${BASE}${endpoint}`, {
       headers: authHeaders(),
       ...options,
     });
     const data = await res.json();
+
+    // ถ้า 401 (token หมดอายุ / ถูก revoke) → ล้าง token และ redirect ไป login
+    if (res.status === 401 && process.client) {
+      handleTokenExpired();
+      return;
+    }
+
+    if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+    return data;
+  }
+
+  async function handleResponse(res) {
+    const data = await res.json();
+    if (res.status === 401 && process.client) {
+      handleTokenExpired();
+      return;
+    }
     if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
     return data;
   }
@@ -32,6 +57,8 @@ export const useApi = () => {
       if (process.client && data.data?.token) {
         localStorage.setItem("valeur_token", data.data.token);
         localStorage.setItem("valeur_user", JSON.stringify(data.data.user));
+        // เก็บเวลาหมดอายุ
+        localStorage.setItem("valeur_expires_at", data.data.expiresAt);
       }
       return data;
     },
@@ -42,14 +69,27 @@ export const useApi = () => {
         if (process.client) {
           localStorage.removeItem("valeur_token");
           localStorage.removeItem("valeur_user");
+          localStorage.removeItem("valeur_expires_at");
         }
       }
     },
+    isLoggedIn() {
+      if (!process.client) return false;
+      const token = localStorage.getItem("valeur_token");
+      if (!token) return false;
+      // เช็ค expiry
+      const expiresAt = localStorage.getItem("valeur_expires_at");
+      if (expiresAt && Date.now() > Number(expiresAt)) {
+        // token หมดอายุ — ล้างออก
+        localStorage.removeItem("valeur_token");
+        localStorage.removeItem("valeur_user");
+        localStorage.removeItem("valeur_expires_at");
+        return false;
+      }
+      return true;
+    },
     async me() {
       return apiFetch("/auth/me");
-    },
-    isLoggedIn() {
-      return process.client && !!localStorage.getItem("valeur_token");
     },
     getUser() {
       if (!process.client) return null;
@@ -121,8 +161,7 @@ export const useApi = () => {
         },
         body: form,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+      const data = await handleResponse(res);
       return data.url; // "/uploads/posts/xxx.jpg"
     },
   };
@@ -142,9 +181,7 @@ export const useApi = () => {
         },
         body: form,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
-      return data;
+      return handleResponse(res);
     },
     setActive(section, id) {
       return apiFetch(`/${section}/banners/${id}/set-active`, {
@@ -197,8 +234,7 @@ export const useApi = () => {
         },
         body: form,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+      const data = await handleResponse(res);
       return data.url;
     },
     overview() {
@@ -250,9 +286,7 @@ export const useApi = () => {
         },
         body: form,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
-      return data;
+      return handleResponse(res);
     },
     async update(id, { file, link, status, img } = {}) {
       const form = new FormData();
@@ -268,9 +302,7 @@ export const useApi = () => {
         },
         body: form,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
-      return data;
+      return handleResponse(res);
     },
     delete(id) {
       return apiFetch(`/ads/${id}`, { method: "DELETE" });

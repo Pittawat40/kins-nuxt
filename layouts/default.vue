@@ -130,6 +130,9 @@
       "
       :contactForm="contactForm"
     />
+
+    <!-- ── SESSION EXPIRED DIALOG ── -->
+    <SessionExpiredDialog />
   </div>
 </template>
 
