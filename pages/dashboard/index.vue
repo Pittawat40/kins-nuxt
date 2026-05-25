@@ -31,7 +31,7 @@
               v-if="currentPage === 'content' && view !== 'list'"
               class="breadcrumb-item active"
             >
-              <a>{{ view === "create" ? "เพิ่มใหม่" : "แก้ไข" }}</a>
+              <a>{{ view === "create" ? "เพิ่มใหม่" : editForm.title }}</a>
             </li>
             <li v-if="currentPage === 'contact'" class="breadcrumb-item active">
               <a>Contact</a>
