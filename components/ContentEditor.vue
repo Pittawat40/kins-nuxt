@@ -194,6 +194,23 @@
                       <option value="6">24</option>
                       <option value="7">32</option>
                     </select>
+                    <!-- ── Color Picker ── -->
+                    <div class="mg-mini-sep" />
+                    <label class="mg-color-btn" title="Text Color" @click.stop>
+                      <span
+                        class="mg-color-icon"
+                        :style="{ '--c': blockColors[idx] || '#000000' }"
+                        >A</span
+                      >
+                      <input
+                        type="color"
+                        class="mg-color-input"
+                        :value="blockColors[idx] || '#000000'"
+                        @input.stop="
+                          (e) => applyColor('block', idx, null, e.target.value)
+                        "
+                      />
+                    </label>
                   </div>
                   <div
                     :ref="(el) => setEditorRef(el, idx)"
@@ -275,6 +292,30 @@
                         <option value="6">32</option>
                         <option value="7">48</option>
                       </select>
+                      <!-- ── Color Picker col1 ── -->
+                      <div class="mg-mini-sep" />
+                      <label
+                        class="mg-color-btn"
+                        title="Text Color"
+                        @click.stop
+                      >
+                        <span
+                          class="mg-color-icon"
+                          :style="{
+                            '--c': colColors[`${idx}-col1`] || '#000000',
+                          }"
+                          >A</span
+                        >
+                        <input
+                          type="color"
+                          class="mg-color-input"
+                          :value="colColors[`${idx}-col1`] || '#000000'"
+                          @input.stop="
+                            (e) =>
+                              applyColor('col', idx, 'col1', e.target.value)
+                          "
+                        />
+                      </label>
                     </div>
                     <div
                       :ref="(el) => setColRef(el, idx, 'col1')"
@@ -350,6 +391,30 @@
                         <option value="6">32</option>
                         <option value="7">48</option>
                       </select>
+                      <!-- ── Color Picker col2 ── -->
+                      <div class="mg-mini-sep" />
+                      <label
+                        class="mg-color-btn"
+                        title="Text Color"
+                        @click.stop
+                      >
+                        <span
+                          class="mg-color-icon"
+                          :style="{
+                            '--c': colColors[`${idx}-col2`] || '#000000',
+                          }"
+                          >A</span
+                        >
+                        <input
+                          type="color"
+                          class="mg-color-input"
+                          :value="colColors[`${idx}-col2`] || '#000000'"
+                          @input.stop="
+                            (e) =>
+                              applyColor('col', idx, 'col2', e.target.value)
+                          "
+                        />
+                      </label>
                     </div>
                     <div
                       :ref="(el) => setColRef(el, idx, 'col2')"
@@ -431,6 +496,27 @@
                         <option value="6">32</option>
                         <option value="7">48</option>
                       </select>
+                      <!-- ── Color Picker side ── -->
+                      <div class="mg-mini-sep" />
+                      <label
+                        class="mg-color-btn"
+                        title="Text Color"
+                        @click.stop
+                      >
+                        <span
+                          class="mg-color-icon"
+                          :style="{ '--c': sideColors[idx] || '#000000' }"
+                          >A</span
+                        >
+                        <input
+                          type="color"
+                          class="mg-color-input"
+                          :value="sideColors[idx] || '#000000'"
+                          @input.stop="
+                            (e) => applyColor('side', idx, null, e.target.value)
+                          "
+                        />
+                      </label>
                     </div>
                     <div
                       :ref="(el) => setSideRef(el, idx)"
@@ -552,6 +638,27 @@
                         <option value="6">32</option>
                         <option value="7">48</option>
                       </select>
+                      <!-- ── Color Picker side ── -->
+                      <div class="mg-mini-sep" />
+                      <label
+                        class="mg-color-btn"
+                        title="Text Color"
+                        @click.stop
+                      >
+                        <span
+                          class="mg-color-icon"
+                          :style="{ '--c': sideColors[idx] || '#000000' }"
+                          >A</span
+                        >
+                        <input
+                          type="color"
+                          class="mg-color-input"
+                          :value="sideColors[idx] || '#000000'"
+                          @input.stop="
+                            (e) => applyColor('side', idx, null, e.target.value)
+                          "
+                        />
+                      </label>
                     </div>
                     <div
                       :ref="(el) => setSideRef(el, idx)"
@@ -713,6 +820,23 @@
                       <option value="6">32</option>
                       <option value="7">48</option>
                     </select>
+                    <!-- ── Color Picker quote ── -->
+                    <div class="mg-mini-sep" />
+                    <label class="mg-color-btn" title="Text Color" @click.stop>
+                      <span
+                        class="mg-color-icon"
+                        :style="{ '--c': quoteColors[idx] || '#000000' }"
+                        >A</span
+                      >
+                      <input
+                        type="color"
+                        class="mg-color-input"
+                        :value="quoteColors[idx] || '#000000'"
+                        @input.stop="
+                          (e) => applyColor('quote', idx, null, e.target.value)
+                        "
+                      />
+                    </label>
                   </div>
                   <div
                     :ref="(el) => setQuoteRef(el, idx)"
@@ -918,10 +1042,55 @@ const pendingImgIdx = ref(null);
 const pendingPairIdx = ref(null);
 const pendingPairSlot = ref(null);
 
+// ── Color state per block (tracks last picked color for the indicator) ──
+// These are purely UI state — the actual color is applied via execCommand into the HTML
+const blockColors = ref({}); // { [idx]: hex }
+const colColors = ref({}); // { [`${idx}-col`]: hex }
+const sideColors = ref({}); // { [idx]: hex }
+const quoteColors = ref({}); // { [idx]: hex }
+
+// ── Selection save/restore ────────────────────────────
+// When the user opens the color picker the editable loses focus and the
+// browser drops the selection. We capture it on every selectionchange so
+// we can put it back before calling execCommand('foreColor').
+let savedRange = null;
+
+if (typeof document !== "undefined") {
+  document.addEventListener("selectionchange", () => {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      // Only save when the anchor is inside one of our editable elements
+      const editables = document.querySelectorAll(
+        ".mg-editable, .mg-quote-text",
+      );
+      for (const el of editables) {
+        if (el.contains(range.commonAncestorContainer)) {
+          savedRange = range.cloneRange();
+          break;
+        }
+      }
+    }
+  });
+}
+
+function restoreSelection(el) {
+  el.focus();
+  if (!savedRange) return;
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(savedRange);
+}
+
 // ── Expose init method for parent to call ─────────────
 function initBlocks(html) {
   editorBlocks.value = deserializeBlocks(html || "");
   activeBlock.value = null;
+  // reset color indicators
+  blockColors.value = {};
+  colColors.value = {};
+  sideColors.value = {};
+  quoteColors.value = {};
   nextTick(() => {
     document.querySelectorAll(".mg-caption-field").forEach((el) => {
       el.style.height = "auto";
@@ -989,6 +1158,35 @@ function fmtQuoteRef(idx, cmd, val) {
   el.focus();
   document.execCommand(cmd, false, val || null);
   editorBlocks.value[idx].content = el.innerHTML;
+  syncContent();
+}
+
+// ── Color apply ───────────────────────────────────────
+// Restore the selection that was lost when the color picker stole focus,
+// then apply foreColor so it works on the first pick every time.
+function applyColor(type, idx, col, color) {
+  let el = null;
+  if (type === "block") {
+    el = editorRefs.value[idx];
+    blockColors.value[idx] = color;
+  } else if (type === "col") {
+    el = colRefs.value[`${idx}-${col}`];
+    colColors.value[`${idx}-${col}`] = color;
+  } else if (type === "side") {
+    el = sideRefs.value[idx];
+    sideColors.value[idx] = color;
+  } else if (type === "quote") {
+    el = quoteRefs.value[idx];
+    quoteColors.value[idx] = color;
+  }
+  if (!el) return;
+
+  restoreSelection(el);
+  document.execCommand("foreColor", false, color);
+
+  if (type === "block") editorBlocks.value[idx].content = el.innerHTML;
+  else if (type === "col") editorBlocks.value[idx][col] = el.innerHTML;
+  else editorBlocks.value[idx].content = el.innerHTML;
   syncContent();
 }
 
@@ -1263,6 +1461,57 @@ function autoResize(e) {
 <style scoped>
 .d-none {
   display: none;
+}
+
+/* ── Color Picker Button ─────────────────────────────── */
+.mg-color-btn {
+  margin-top: 4px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  cursor: pointer;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.mg-color-btn:hover {
+  background: var(--border);
+}
+
+/* The "A" letter with a colored underline indicating current color */
+.mg-color-icon {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  pointer-events: none;
+  user-select: none;
+}
+.mg-color-icon::after {
+  content: "";
+  display: block;
+  width: 14px;
+  height: 3px;
+  border-radius: 1px;
+  background: var(--c, #000000);
+}
+
+/* Hide the native color input but keep it clickable via the label */
+.mg-color-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: none;
+  padding: 0;
 }
 
 /* reuse all mg-* styles from parent — copy them here so the component is self-contained */
