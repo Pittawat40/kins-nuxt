@@ -209,9 +209,15 @@
                       </div>
                     </td>
                     <td>
-                      <div class="item-title">
-                        {{ (page - 1) * perPage + index + 1 }} -
-                        {{ item.title }}
+                      <div>
+                        <router-link
+                          :to="`/detail/${item.slug}`"
+                          class="item-title"
+                          target="_blank"
+                        >
+                          {{ (page - 1) * perPage + index + 1 }} -
+                          {{ item.title }}
+                        </router-link>
                       </div>
                       <div class="item-excerpt">
                         {{ stripHtml(item.content) }}
@@ -445,6 +451,7 @@ function onSearchInput() {
     fetchPosts();
   }, 400);
 }
+
 function onLimitChange() {
   page.value = 1;
   fetchPosts();
@@ -468,6 +475,10 @@ async function fetchPosts() {
     if (filterStatus.value) params.status = filterStatus.value;
     const res = await postsApi.list(activeSection.value, params);
     pagedItems.value = res.data;
+    pagedItems.value = res.data.map((p) => ({
+      ...p,
+      slug: slugify(p.title),
+    }));
     meta.value = res.meta;
     sectionCount[activeSection.value] = res.meta.total;
   } catch (e) {
@@ -479,12 +490,23 @@ async function fetchPosts() {
     }, 500);
   }
 }
+
+const slugify = (text) => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
+
 function prevPage() {
   if (page.value > 1) {
     page.value--;
     fetchPosts();
   }
 }
+
 function nextPage() {
   if (page.value < totalPages.value) {
     page.value++;
@@ -858,7 +880,7 @@ onMounted(async () => {
 }
 .item-title {
   font-weight: 500;
-  color: var(--ink);
+  color: var(--accent);
   margin-bottom: 3px;
   line-height: 1.3;
 }
