@@ -1,8 +1,13 @@
 <template>
-  <section class="coll-sec" id="collections">
+  <section
+    class="coll-sec"
+    id="collections"
+    ref="sectionRef"
+    :class="{ 'is-visible': isVisible }"
+  >
     <div class="container-fluid px-3 px-lg-5">
       <div class="d-flex align-items-end justify-content-between">
-        <div>
+        <div class="animate-text">
           <span class="sec-rule" />
           <h2 class="t-h2" style="color: var(--ink-muted)">
             Explore Our Lastest Stories
@@ -11,7 +16,6 @@
       </div>
     </div>
 
-    <!-- Horizontal scroll track -->
     <div
       class="ctrack"
       ref="trackRef"
@@ -23,7 +27,8 @@
       <div
         v-for="(item, i) in collections"
         :key="item.id"
-        class="citem"
+        class="citem animate-card"
+        :style="{ '--delay': i }"
         @click="$router.push(`/detail/${item.slug}`)"
       >
         <div class="cimg-wrap">
@@ -39,6 +44,8 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from "vue";
+
 defineProps({
   collections: {
     type: Array,
@@ -50,6 +57,35 @@ const {
   public: { apiBase = "http://localhost:3002/api" },
 } = useRuntimeConfig();
 const API_BASE = apiBase.replace(/\/api\/?$/, ""); // "http://localhost:3002"
+
+// ── Scroll Animation Logic ───────────────────────────
+const sectionRef = ref(null);
+const isVisible = ref(false);
+let observer = null;
+
+onMounted(() => {
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isVisible.value = true;
+          if (sectionRef.value) observer.unobserve(sectionRef.value);
+        }
+      });
+    },
+    {
+      threshold: 0.15,
+    },
+  );
+
+  if (sectionRef.value) {
+    observer.observe(sectionRef.value);
+  }
+});
+
+onUnmounted(() => {
+  if (observer) observer.disconnect();
+});
 
 // ── Image URL helper ─────────────────────────────────
 function resolveImgUrl(url) {
@@ -88,6 +124,29 @@ function onMouseMove(e) {
   background: var(--white);
   overflow: hidden;
   margin-bottom: 60px;
+}
+
+.animate-text {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition:
+    transform 1s cubic-bezier(0.215, 0.61, 0.355, 1),
+    opacity 1s ease;
+}
+
+.animate-card {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  transition-delay: calc(var(--delay) * 100ms);
+}
+
+.coll-sec.is-visible .animate-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.coll-sec.is-visible .animate-card {
+  opacity: 1;
 }
 
 .drag-hint {
@@ -131,9 +190,8 @@ function onMouseMove(e) {
 
 /* card */
 .citem {
-  flex: 0 0 auto; /* ยอมให้การ์ดกว้างตามเนื้อหาข้างใน */
-  width: auto; /* ให้กว้างตามรูป */
-
+  flex: 0 0 auto;
+  width: auto;
   position: relative;
   overflow: hidden;
   scroll-snap-align: start;
@@ -151,14 +209,12 @@ function onMouseMove(e) {
 }
 
 .cimg {
-  width: auto; /* ⚠️ ห้ามใส่ 100% เพราะจะทำให้ Safari ดึงขนาดจริงของไฟล์ภาพมา */
-  height: 100%; /* บังคับให้รูปสูงเท่าตัว wrap (460px) */
-  max-width: 100vw; /* ป้องกันไม่ให้รูปเดี่ยว ๆ กว้างเกินขนาดหน้าจอ */
+  width: auto;
+  height: 100%;
+  max-width: 100vw;
   min-width: 100%;
-
-  object-fit: cover; /* หรือใช้ cover ก็ได้ตามความชอบ แต่ contain จะโชว์สัดส่วนรูปเต็ม ๆ */
+  object-fit: cover;
   display: block;
-
   transition:
     transform 0.7s ease,
     filter 0.5s ease;

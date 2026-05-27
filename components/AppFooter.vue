@@ -133,7 +133,7 @@ const props = defineProps({
 .contact {
   text-decoration: none;
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.52);
   padding: 0.28rem 0;
   transition: color 0.3s;
@@ -150,7 +150,7 @@ const props = defineProps({
 .fnl {
   text-decoration: none;
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.52);
   padding: 0.28rem 0;
   transition: color 0.3s;

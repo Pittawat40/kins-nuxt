@@ -1,48 +1,51 @@
 <template>
   <div class="page">
-    <!-- Loading -->
     <div v-if="pending" class="loading text-center py-5">
       <div class="spinner-border" role="status" />
     </div>
 
-    <!-- Loaded -->
     <template v-else>
-      <!-- HERO BANNER -->
       <Banner :bannerImage="resolveBannerUrl(activeBanner?.url)" />
 
-      <!-- GRID -->
-      <div class="container-fluid px-3 px-lg-5 mt-5">
-        <div class="d-flex align-items-end justify-content-between">
-          <div>
-            <span class="sec-rule" />
-            <p class="t-label mb-2">Collections</p>
-            <h2 class="t-h2" style="color: var(--ink-muted)">Lifestyle</h2>
+      <section
+        ref="sectionRef"
+        class="content-section"
+        :class="{ 'is-visible': isVisible }"
+      >
+        <div class="container-fluid px-3 px-lg-5 mt-5">
+          <div class="d-flex align-items-end justify-content-between">
+            <div class="animate-text">
+              <span class="sec-rule" />
+              <p class="t-label mb-2">Collections</p>
+              <h2 class="t-h2" style="color: var(--ink-muted)">Lifestyle</h2>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Error -->
-      <div v-if="error" class="container-fluid px-3 px-lg-5 py-4">
-        <div class="alert alert-warning">
-          ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่
+        <div v-if="error" class="container-fluid px-3 px-lg-5 py-4">
+          <div class="alert alert-warning">
+            ไม่สามารถโหลดข้อมูลได้ กรุณาลองใหม่
+          </div>
         </div>
-      </div>
 
-      <!-- List -->
-      <listCollections
-        v-else
-        :posts="postList"
-        :meta="meta"
-        :page="page"
-        :goToPage="goToPage"
-        :nextPage="nextPage"
-        :prevPage="prevPage"
-      />
+        <div v-else class="animate-list">
+          <listCollections
+            :posts="postList"
+            :meta="meta"
+            :page="page"
+            :goToPage="goToPage"
+            :nextPage="nextPage"
+            :prevPage="prevPage"
+          />
+        </div>
+      </section>
     </template>
   </div>
 </template>
 
 <script setup>
+import { ref, watch, nextTick, onUnmounted, onMounted } from "vue";
+
 useHead({ title: "Lifestyle - KIN'S" });
 
 const {
@@ -63,6 +66,38 @@ const activeBanner = ref(null);
 const page = ref(1);
 const perPage = 6;
 const meta = ref({});
+
+const sectionRef = ref(null);
+const isVisible = ref(false);
+let observer = null;
+
+watch(
+  pending,
+  async (isPending) => {
+    if (!isPending) {
+      await nextTick();
+      if (sectionRef.value) {
+        observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                isVisible.value = true;
+                if (sectionRef.value) observer.unobserve(sectionRef.value);
+              }
+            });
+          },
+          { threshold: 0.1 },
+        );
+        observer.observe(sectionRef.value);
+      }
+    }
+  },
+  { immediate: true },
+);
+
+onUnmounted(() => {
+  if (observer) observer.disconnect();
+});
 
 onMounted(() => {
   fetchData();
@@ -125,15 +160,37 @@ const slugify = (text) => {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, "") // ลบอักขระพิเศษ
-    .replace(/\s+/g, "-") // เว้นวรรค -> -
-    .replace(/-+/g, "-"); // ลด - ซ้ำ
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 };
 </script>
 
 <style scoped>
 .container-fluid {
   max-width: 1400px;
+}
+
+.animate-text {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition:
+    transform 1s cubic-bezier(0.215, 0.61, 0.355, 1),
+    opacity 1s ease;
+}
+
+.animate-list {
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.content-section.is-visible .animate-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.content-section.is-visible .animate-list {
+  opacity: 1;
 }
 
 @media (max-width: 767px) {
