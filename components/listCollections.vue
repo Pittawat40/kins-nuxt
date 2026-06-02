@@ -197,7 +197,7 @@ async function fetchAds() {
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: brightness(0.65) saturate(0.75);
+  /* filter: brightness(0.65) saturate(0.75); */
   transition: transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 .post-card:hover .card-img-wrap img {
@@ -265,9 +265,7 @@ async function fetchAds() {
     padding-top: 20px;
     margin-top: 10px;
   }
-  /* .card-img-wrap {
-    aspect-ratio: 16 / 9;
-  } */
+
   .grid-container {
     margin: 0;
     grid-template-columns: repeat(2, 1fr);
