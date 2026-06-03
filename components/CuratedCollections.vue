@@ -222,7 +222,7 @@ function onMouseMove(e) {
 
 .citem:hover .cimg {
   transform: scale(1.05);
-  filter: brightness(0.48) saturate(0.62);
+  /* filter: brightness(0.48) saturate(0.62); */
 }
 
 .cbody {
