@@ -10,7 +10,9 @@
       id="snav"
     >
       <div class="container-fluid px-3 px-lg-5">
-        <div class="d-flex align-items-center justify-content-between">
+        <div
+          class="d-flex align-items-center justify-content-between position-relative"
+        >
           <!-- Desktop nav links -->
           <div class="d-none d-lg-flex align-items-center gap-1">
             <NuxtLink to="/hotels" class="nl">Hotels</NuxtLink>
@@ -24,10 +26,11 @@
           <h1>
             <NuxtLink to="/" class="logo">KIN'S</NuxtLink>
           </h1>
-          <!-- Social + Contact -->
+
+          <!-- Social + Contact (Desktop) -->
           <div class="d-none d-lg-flex align-items-center gap-3">
             <div class="nsoc">
-              <div class="search-box">
+              <div class="search-box" style="position: relative">
                 <input
                   v-model="keyword"
                   type="text"
@@ -35,10 +38,35 @@
                   :class="{ active: showSearch }"
                   placeholder="Search..."
                   @keydown.enter="onSearch"
-                  @blur="showSearch = false"
+                  @keydown.esc="showDrop = false"
+                  @blur="
+                    setTimeout(() => {
+                      showDrop = false;
+                      showSearch = false;
+                    }, 150)
+                  "
                 />
+
+                <!-- Desktop Dropdown -->
+                <div v-if="showDrop && !showMobSearch" class="suggest-drop">
+                  <div
+                    v-for="item in suggestions"
+                    :key="item.id"
+                    class="suggest-item"
+                    @mousedown="selectSuggestion(item)"
+                  >
+                    <i class="bi bi-search suggest-icon" />
+                    <span class="suggest-title">{{ item.title }}</span>
+                    <!-- <span class="suggest-cat">{{ item.section }}</span> -->
+                  </div>
+                </div>
               </div>
-              <a title="search" @click="showSearch = !showSearch"
+              <a
+                title="search"
+                @click="
+                  (((showSearch = !showSearch), (showDrop = false)),
+                  (keyword = ''))
+                "
                 ><i class="bi bi-search me-3 search"
               /></a>
               <a
@@ -80,14 +108,63 @@
             </div>
           </div>
 
-          <!-- Mobile burger -->
-          <button
-            class="d-lg-none mob-btn"
-            @click="mobOpen = true"
-            aria-label="Open menu"
+          <!-- ── MOBILE CONTROLS ── -->
+          <div
+            class="d-flex d-lg-none align-items-center gap-2 mobile-controls"
           >
-            <i class="bi bi-list" />
-          </button>
+            <!-- Mobile Search Container -->
+            <div class="mob-search-container">
+              <input
+                v-model="keyword"
+                type="text"
+                class="form-control mob-search-input"
+                :class="{ active: showMobSearch }"
+                placeholder="Search..."
+                @keydown.enter="onSearch"
+                @keydown.esc="showDrop = false"
+                @blur="
+                  setTimeout(() => {
+                    showDrop = false;
+                    showMobSearch = false;
+                  }, 150)
+                "
+              />
+
+              <!-- Mobile Dropdown -->
+              <div
+                v-if="showDrop && showMobSearch"
+                class="suggest-drop mob-suggest-drop"
+              >
+                <div
+                  v-for="item in suggestions"
+                  :key="item.id"
+                  class="suggest-item"
+                  @mousedown="selectSuggestion(item)"
+                >
+                  <i class="bi bi-search suggest-icon" />
+                  <span class="suggest-title">{{ item.title }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Search Toggle Button -->
+            <button
+              class="mob-btn"
+              @click="toggleMobSearch"
+              aria-label="Toggle search"
+            >
+              <i :class="showMobSearch ? 'bi bi-x-lg' : 'bi bi-search'" />
+            </button>
+
+            <!-- Mobile burger -->
+            <button
+              class="mob-btn"
+              @click="mobOpen = true"
+              aria-label="Open menu"
+            >
+              <i class="bi bi-list" />
+            </button>
+          </div>
         </div>
       </div>
     </nav>
@@ -144,9 +221,46 @@ const route = useRoute();
 const scrolled = ref(false);
 const mobOpen = ref(false);
 const showSearch = ref(false);
+const showMobSearch = ref(false); // ควบคุมสถานะค้นหาบน Mobile
 const keyword = ref("");
 
 const { posts: postsApi, contact: contactApi, track: trackApi } = useApi();
+
+const suggestions = ref([]);
+const showDrop = ref(false);
+let debounceTimer = null;
+
+watch(keyword, (val) => {
+  clearTimeout(debounceTimer);
+  if (!val?.trim() || val.length < 1) {
+    suggestions.value = [];
+    showDrop.value = false;
+    return;
+  }
+  debounceTimer = setTimeout(async () => {
+    try {
+      const res = await postsApi.suggest(val.trim());
+      suggestions.value = res?.data ?? [];
+      showDrop.value = suggestions.value.length > 0;
+    } catch {
+      suggestions.value = [];
+    }
+  }, 300);
+});
+
+const toggleMobSearch = () => {
+  showMobSearch.value = !showMobSearch.value;
+  showDrop.value = false;
+  keyword.value = "";
+};
+
+const selectSuggestion = (item) => {
+  navigateTo(`/detail/${toSlug(item.title)}`);
+  keyword.value = "";
+  showDrop.value = false;
+  showSearch.value = false;
+  showMobSearch.value = false;
+};
 
 const contactForm = reactive({
   email: "",
@@ -168,6 +282,7 @@ const onSearch = async () => {
     console.error(e);
   } finally {
     showSearch.value = false;
+    showMobSearch.value = false;
     keyword.value = "";
   }
 };
@@ -236,6 +351,86 @@ function toSlug(str) {
 </script>
 
 <style scoped>
+.search-input:focus,
+.search-input.form-control:focus,
+.mob-search-input:focus,
+.mob-search-input.form-control:focus {
+  border-color: #d9d9d9;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.suggest-drop {
+  position: absolute;
+  top: calc(100% + 15px);
+  right: 20px;
+  left: auto;
+  width: 280px;
+  max-width: 280px;
+  background: var(--white);
+  border: 1px solid var(--paper-deep);
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 8px 40px rgba(15, 15, 13, 0.12);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.suggest-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  cursor: pointer;
+  gap: 12px;
+  transition: background 0.15s;
+}
+
+.suggest-item:last-child {
+  border-bottom: none;
+}
+
+.suggest-item:hover {
+  background: var(--paper);
+}
+
+.suggest-item:hover .suggest-title {
+  color: var(--ink);
+}
+
+.suggest-title {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  flex: 1;
+  transition: color 0.15s;
+}
+
+.suggest-cat {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  background: var(--paper-deep);
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.suggest-icon {
+  font-size: 11px;
+  color: var(--ink-muted);
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
 /* ── NAVBAR ── */
 .login {
   font-size: 0.65rem !important;
@@ -246,18 +441,31 @@ function toSlug(str) {
   margin-left: 10px;
   padding: 0.3rem 1rem;
 }
+.search-box {
+  position: relative;
+  width: 0;
+}
+
 .search-input {
-  font-size: 13px;
+  font-size: 16px;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+
   width: 0;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.5s ease;
+
+  transition: all 0.3s ease;
 }
+
 .search-input.active {
-  width: 180px;
+  width: 280px;
   opacity: 1;
   pointer-events: auto;
 }
+
 .snav {
   position: fixed;
   top: 0;
@@ -342,11 +550,52 @@ function toSlug(str) {
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 1.5rem;
+  font-size: 1rem;
   color: var(--ink);
   padding: 0.3rem;
   display: flex;
   align-items: center;
+}
+
+/* ── MOBILE CONTROLS ── */
+.mobile-controls {
+  display: flex;
+  align-items: center;
+}
+
+.mob-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.mob-search-input {
+  font-size: 14px;
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  border: none;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: var(--paper);
+}
+
+.mob-search-input.active {
+  width: 200px;
+  opacity: 1;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #d9d9d9;
+  pointer-events: auto;
+}
+
+.mob-suggest-drop {
+  position: absolute;
+  top: calc(100% - 5px) !important;
+  right: 0 !important;
+  left: auto !important;
+  width: 200px !important;
+  max-width: 200px !important;
+  border-radius: 0 0 6px 6px !important;
 }
 
 /* ── MOBILE PANEL ── */
@@ -399,5 +648,32 @@ function toSlug(str) {
 .mob-enter-from,
 .mob-leave-to {
   opacity: 0;
+}
+
+@media (max-width: 1024px) {
+  .suggest-drop {
+    width: 200px;
+    max-width: 200px;
+    right: 0;
+  }
+
+  .search-input {
+    right: 0;
+  }
+
+  .search-input.active {
+    width: 200px;
+  }
+}
+
+@media (max-width: 375px) {
+  .mob-search-input.active {
+    width: 160px;
+  }
+
+  .mob-suggest-drop {
+    width: 160px !important;
+    max-width: 160px !important;
+  }
 }
 </style>

@@ -45,8 +45,12 @@
 
 <script setup>
 import { ref, watch, nextTick, onUnmounted, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 useHead({ title: "Hotel - KIN'S" });
+
+const route = useRoute();
+const router = useRouter();
 
 const {
   public: { apiBase = "http://localhost:3002/api" },
@@ -64,11 +68,11 @@ const pending = ref(true);
 const error = ref(false);
 const postList = ref([]);
 const activeBanner = ref(null);
-const page = ref(1);
+
+const page = ref(Number(route.query.page) || 1);
 const perPage = 6;
 const meta = ref({});
 
-// ── Scroll Animation Logic ───────────────────────────
 const sectionRef = ref(null);
 const isVisible = ref(false);
 let observer = null;
@@ -103,6 +107,17 @@ watch(
 onUnmounted(() => {
   if (observer) observer.disconnect();
 });
+
+watch(
+  () => route.query.page,
+  (newPage) => {
+    const pageNum = Number(newPage) || 1;
+    if (page.value !== pageNum) {
+      page.value = pageNum;
+      fetchData();
+    }
+  },
+);
 
 onMounted(() => {
   fetchData();
@@ -143,15 +158,27 @@ async function fetchData() {
   }
 }
 
+function updateRouteQuery(p) {
+  router.push({
+    path: route.path,
+    query: {
+      ...route.query,
+      page: p,
+    },
+  });
+}
+
 function goToPage(p) {
   if (p < 1 || p > meta.value.totalPages) return;
   page.value = p;
+  updateRouteQuery(p);
   fetchData();
 }
 
 function nextPage() {
   if (page.value < meta.value.totalPages) {
     page.value++;
+    updateRouteQuery(page.value);
     fetchData();
   }
 }
@@ -159,6 +186,7 @@ function nextPage() {
 function prevPage() {
   if (page.value > 1) {
     page.value--;
+    updateRouteQuery(page.value);
     fetchData();
   }
 }

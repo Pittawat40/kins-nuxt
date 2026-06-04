@@ -113,6 +113,9 @@ export const useApi = () => {
     search(keyword) {
       return apiFetch(`/posts/search?q=${encodeURIComponent(keyword)}`);
     },
+    suggest(keyword) {
+      return apiFetch(`/posts/suggest?q=${encodeURIComponent(keyword)}`);
+    },
     create(section, payload) {
       return apiFetch(`/${section}/posts`, {
         method: "POST",
