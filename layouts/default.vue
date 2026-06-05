@@ -261,7 +261,7 @@ const toggleMobSearch = () => {
 };
 
 const selectSuggestion = (item) => {
-  navigateTo(`/detail/${toSlug(item.title)}`);
+  navigateTo(`/detail/${slugify(item.title)}`);
   keyword.value = "";
   showDrop.value = false;
   showSearch.value = false;
@@ -281,7 +281,7 @@ const onSearch = async () => {
   try {
     const res = await postsApi.search(q);
     if (res?.data) {
-      const slug = toSlug(res.data.title);
+      const slug = slugify(res.data.title);
       navigateTo(`/detail/${slug}`);
     }
   } catch (e) {
@@ -342,18 +342,6 @@ async function trackPageView() {
 watch(mobOpen, (val) => {
   document.body.style.overflow = val ? "hidden" : "";
 });
-
-function toSlug(str) {
-  return (str || "")
-    .toLowerCase()
-    .normalize("NFD") // แยก accent (รองรับภาษาอื่น)
-    .replace(/[\u0300-\u036f]/g, "") // ลบ accent
-    .replace(/[–—]/g, "-") // แปลง dash พิเศษเป็น -
-    .replace(/[^\w\s-]/g, "") // ลบอักขระพิเศษ
-    .trim()
-    .replace(/\s+/g, "-") // space → -
-    .replace(/-+/g, "-"); // ลด -- เหลือ -
-}
 </script>
 
 <style scoped>
