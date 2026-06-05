@@ -22,23 +22,19 @@ export default defineNuxtConfig({
             ? text
                 .toLowerCase()
                 .trim()
-                .replace(/[^a-z0-9\s-]/g, "")
+                .replace(/[^\u0E00-\u0E7Fa-z0-9\s-]/g, "")
                 .replace(/\s+/g, "-")
                 .replace(/-+/g, "-")
             : "";
         };
 
-        // 🛠️ ตรวจสอบอย่างละเอียดว่าข้อมูลที่ได้จากหลังบ้านอยู่ตรงไหนกันแน่
         let posts = [];
         if (Array.isArray(resData)) {
-          // กรณี API ส่งกลับมาเป็นอาเรย์ตรงๆ เลย [ {}, {}, {} ]
           posts = resData;
         } else if (resData && Array.isArray(resData.data)) {
-          // กรณีส่งกลับมาเป็น Object ที่มี .data อยู่ข้างในเหมือนโค้ดเดิม
           posts = resData.data;
         }
 
-        // วนลูปเฉพาะตอนที่มีข้อมูลแบบ Array เท่านั้น
         return posts.map((post) => ({
           loc: `/detail/${slugify(post.title)}`,
           changefreq: "weekly",
@@ -46,7 +42,7 @@ export default defineNuxtConfig({
         }));
       } catch (error) {
         console.error("Failed to fetch posts for sitemap:", error);
-        return []; // คืนค่าอาเรย์ว่างเพื่อไม่ให้แอปบิลด์พัง
+        return [];
       }
     },
   },
@@ -75,6 +71,12 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || "http://localhost:3002/api",
+    },
+  },
+
+  router: {
+    options: {
+      encodePaths: false,
     },
   },
 

@@ -180,15 +180,6 @@ const initPage = async () => {
 onMounted(() => {
   initPage();
 });
-
-const slugify = (text) => {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "") // ลบอักขระพิเศษ
-    .replace(/\s+/g, "-") // เว้นวรรค -> -
-    .replace(/-+/g, "-"); // ลด - ซ้ำ
-};
 </script>
 
 <style scoped>

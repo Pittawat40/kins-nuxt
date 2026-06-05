@@ -24,10 +24,10 @@ export function useSiteData() {
   // ── Footer nav ────────────────────────────────────────────────────────────
   const footerLinks = {
     discover: [
-      { label: "Hotels", href: "/hotels" },
-      { label: "Real Estate", href: "/real-estate" },
-      { label: "Travel", href: "/travel" },
-      { label: "Lifestyle", href: "/lifestyle" },
+      { label: "Hotels", href: "/hotels?page=1" },
+      { label: "Real Estate", href: "/real-estate?page=1" },
+      { label: "Travel", href: "/travel?page=1" },
+      { label: "Lifestyle", href: "/lifestyle?page=1" },
     ],
   };
 

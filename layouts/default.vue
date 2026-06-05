@@ -15,10 +15,10 @@
         >
           <!-- Desktop nav links -->
           <div class="d-none d-lg-flex align-items-center gap-1">
-            <NuxtLink to="/hotels" class="nl">Hotels</NuxtLink>
-            <NuxtLink to="/real-estate" class="nl">Real Estate</NuxtLink>
-            <NuxtLink to="/travel" class="nl">Travel</NuxtLink>
-            <NuxtLink to="/lifestyle" class="nl">Lifestyle</NuxtLink>
+            <NuxtLink to="/hotels?page=1" class="nl">Hotels</NuxtLink>
+            <NuxtLink to="/real-estate?page=1" class="nl">Real Estate</NuxtLink>
+            <NuxtLink to="/travel?page=1" class="nl">Travel</NuxtLink>
+            <NuxtLink to="/lifestyle?page=1" class="nl">Lifestyle</NuxtLink>
           </div>
 
           <!-- Logo -->
@@ -180,16 +180,22 @@
           <i class="bi bi-x-lg" />
         </button>
         <div class="mob-brand">KIN'S</div>
-        <NuxtLink to="/hotels" class="mob-link" @click="mobOpen = false"
+        <NuxtLink to="/hotels?page=1" class="mob-link" @click="mobOpen = false"
           >Hotels</NuxtLink
         >
-        <NuxtLink to="/real-estate" class="mob-link" @click="mobOpen = false"
+        <NuxtLink
+          to="/real-estate?page=1"
+          class="mob-link"
+          @click="mobOpen = false"
           >Real Estate</NuxtLink
         >
-        <NuxtLink to="/travel" class="mob-link" @click="mobOpen = false"
+        <NuxtLink to="/travel?page=1" class="mob-link" @click="mobOpen = false"
           >Travel</NuxtLink
         >
-        <NuxtLink to="/lifestyle" class="mob-link" @click="mobOpen = false"
+        <NuxtLink
+          to="/lifestyle?page=1"
+          class="mob-link"
+          @click="mobOpen = false"
           >Lifestyle</NuxtLink
         >
       </div>

@@ -47,13 +47,4 @@ async function fetchPosts() {
     console.error("posts fetch error", e);
   }
 }
-
-const slugify = (text) => {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "") // ลบอักขระพิเศษ
-    .replace(/\s+/g, "-") // เว้นวรรค -> -
-    .replace(/-+/g, "-"); // ลด - ซ้ำ
-};
 </script>
