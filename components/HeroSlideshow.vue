@@ -23,6 +23,7 @@
           autoplay
           loop
           class="media"
+          :loading="i === 0 ? 'eager' : 'lazy'"
         />
 
         <button

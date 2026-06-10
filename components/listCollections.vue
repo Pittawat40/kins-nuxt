@@ -14,7 +14,11 @@
           "
         >
           <div class="card-img-wrap">
-            <img :src="resolveImgUrl(post.img)" :alt="post.title" />
+            <img
+              :src="resolveImgUrl(post.img)"
+              :alt="post.title"
+              loading="lazy"
+            />
           </div>
           <div class="card-body">
             <h2 class="card-title">{{ post.title }}</h2>
