@@ -1948,7 +1948,7 @@ function autoResize(e) {
     grid-template-columns: 1fr;
   }
   .mg-blocks {
-    padding: 10px;
+    padding: 0;
   }
 }
 </style>
