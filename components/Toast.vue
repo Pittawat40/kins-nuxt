@@ -22,7 +22,7 @@ const props = defineProps({
 <style scoped>
 .toast-wrap {
   position: fixed;
-  bottom: 24px;
+  top: 60px;
   right: 24px;
   background: var(--green);
   color: #fff;

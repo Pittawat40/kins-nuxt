@@ -766,13 +766,25 @@ video {
 .form-select {
   font-size: 13px;
 }
+.show-desktop {
+  display: block;
+}
 
 @media (max-width: 768px) {
+  .show-desktop {
+    display: none;
+  }
   .section-card {
     margin: 14px 12px 0;
     padding: 16px 14px;
   }
   .banner-grid {
     grid-template-columns: 1fr;
+  }
+  .section-sub {
+    display: none;
+  }
+  .form-layout {
+    display: block;
   }
 }

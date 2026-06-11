@@ -15,7 +15,7 @@
               if (el) videoRefs[i] = el;
             }
           "
-          :src="resolveBannerUrl(slide.url)"
+          :src="current === i ? resolveBannerUrl(slide.url) : ''"
           :poster="resolveBannerUrl(slide.posterUrl || slide.thumbnail)"
           muted
           playsinline
@@ -23,6 +23,7 @@
           autoplay
           loop
           class="media"
+          preload="metadata"
           :loading="i === 0 ? 'eager' : 'lazy'"
         />
 
@@ -37,7 +38,12 @@
         </button>
       </div>
 
-      <img v-else :src="resolveBannerUrl(slide.url)" class="media" />
+      <img
+        v-else
+        :src="current === i ? resolveBannerUrl(slide.url) : ''"
+        class="media"
+        loading="lazy"
+      />
     </div>
 
     <div class="hero-ov" />
@@ -99,7 +105,7 @@ const props = defineProps({
 
 const current = ref(0);
 const videoRefs = ref({});
-const isVideoBlocked = ref({}); // เก็บสถานะการโดนบล็อกของวิดีโอแต่ละตัว
+const isVideoBlocked = ref({});
 let timer = null;
 
 function goTo(index) {
@@ -146,8 +152,6 @@ function onTouchEnd(e) {
 }
 
 // ── ฟังก์ชันสั่งเล่นวิดีโอและแก้ปัญหา LINE Browser ──
-
-// สั่งเล่นวิดีโอตัวปัจจุบันอย่างปลอดภัย
 function playCurrentVideo() {
   nextTick(() => {
     const activeVideo = videoRefs.value[current.value];
@@ -156,12 +160,10 @@ function playCurrentVideo() {
       activeVideo
         .play()
         .then(() => {
-          // ถ้าเล่นสำเร็จ ให้ปิดปุ่มสำรอง
           isVideoBlocked.value[current.value] = false;
         })
         .catch((err) => {
           console.warn("Autoplay blocked. Showing manual play button.", err);
-          // หากโดนบล็อก (เช่น ติด Low Power Mode หรือเปิดบน LINE ครั้งแรก) ให้โชว์ปุ่มสำรอง
           isVideoBlocked.value[current.value] = true;
         });
     }

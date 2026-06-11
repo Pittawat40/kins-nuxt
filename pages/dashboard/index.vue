@@ -29,7 +29,7 @@
             </li>
             <li
               v-if="currentPage === 'content' && view !== 'list'"
-              class="breadcrumb-item active"
+              class="breadcrumb-item active show-desktop"
             >
               <a>{{ view === "create" ? "เพิ่มใหม่" : editForm.title }}</a>
             </li>
@@ -638,10 +638,15 @@ async function saveItem(formData) {
   }
   saveLoading.value = true;
   try {
+    const content = (formData.content || "").replace(
+      /<img\b(?![^>]*\bloading=)([^>]*)>/gi,
+      '<img$1 loading="lazy" decoding="async">',
+    );
+
     const payload = {
       title: formData.title,
       description: formData.description,
-      content: formData.content,
+      content: content,
       img: formData.img,
       bannerImg: formData.bannerImg,
       status: formData.status,
@@ -956,6 +961,7 @@ onMounted(async () => {
     padding-bottom: 14px;
   }
   .list-filters {
+    margin-top: 10px;
     flex-direction: column;
   }
   .item-title {

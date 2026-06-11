@@ -1947,5 +1947,8 @@ function autoResize(e) {
   .mg-img-pair-grid {
     grid-template-columns: 1fr;
   }
+  .mg-blocks {
+    padding: 10px;
+  }
 }
 </style>
