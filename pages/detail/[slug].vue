@@ -147,7 +147,7 @@ const fetchPostList = async () => {
   try {
     const postsRes = await postsApi.list(detail.value.section, {
       status: "published",
-      limit: 10,
+      limit: 5,
     });
 
     postList.value = postsRes.data

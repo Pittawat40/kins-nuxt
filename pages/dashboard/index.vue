@@ -480,7 +480,7 @@ async function fetchPosts() {
       slug: slugify(p.title),
     }));
     meta.value = res.meta;
-    sectionCount[activeSection.value] = res.meta.total;
+    // sectionCount[activeSection.value] = res.meta.total;
   } catch (e) {
     showToast(e.message || "โหลดข้อมูลไม่ได้", "error");
   } finally {
@@ -506,7 +506,7 @@ function nextPage() {
 }
 
 async function fetchAllSectionCounts() {
-  for (const item of navItems.filter((n) => n.key !== activeSection.value)) {
+  for (const item of navItems) {
     try {
       const res = await postsApi.list(item.key, { page: 1, limit: 1 });
       sectionCount[item.key] = res.meta.total;
