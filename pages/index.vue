@@ -33,7 +33,7 @@ async function fetchHeroBanners() {
 
 async function fetchPosts() {
   try {
-    const res = await posts.combined({ status: "published", limit: 20 });
+    const res = await posts.combined({ status: "published", limit: 10 });
 
     content.value = res.data.map((p) => ({
       id: p.id,
