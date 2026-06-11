@@ -115,20 +115,28 @@ watch(
 );
 
 onMounted(() => {
+  fetchBanner();
   fetchData();
 });
+
+async function fetchBanner() {
+  try {
+    const bannersRes = await bannersApi.list("lifestyle");
+    activeBanner.value =
+      bannersRes.data.find((b) => b.active) || bannersRes.data[0] || null;
+  } catch (e) {
+    console.error(e);
+  }
+}
 
 async function fetchData() {
   pending.value = true;
   try {
-    const [postsRes, bannersRes] = await Promise.all([
-      postsApi.list("lifestyle", {
-        status: "published",
-        page: page.value,
-        limit: perPage,
-      }),
-      bannersApi.list("lifestyle"),
-    ]);
+    const postsRes = await postsApi.list("lifestyle", {
+      status: "published",
+      page: page.value,
+      limit: perPage,
+    });
 
     postList.value = postsRes.data.map((p) => ({
       id: p.id,
@@ -141,9 +149,6 @@ async function fetchData() {
     }));
 
     meta.value = postsRes.meta;
-
-    activeBanner.value =
-      bannersRes.data.find((b) => b.active) || bannersRes.data[0] || null;
     window.scrollTo(0, 0);
   } catch (e) {
     console.error(e);
