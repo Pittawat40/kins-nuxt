@@ -11,7 +11,7 @@
         :bannerImage="`${resolveImgUrl(detail.bannerImg || detail.img)}`"
       />
       <div class="container-fluid px-3 px-lg-5 mt-4">
-        <div class="container-fluid px-3 px-lg-5 mt-4">
+        <div class="container-fluid px-1 px-lg-5 mt-4">
           <nav class="breadcrumb-nav" aria-label="breadcrumb">
             <NuxtLink to="/" class="crumb-link">Home</NuxtLink>
             <i class="bi bi-chevron-right crumb-sep" />
@@ -87,7 +87,12 @@ const sectionLabels = {
 const sectionLabel = computed(
   () => sectionLabels[detail.value.section] || detail.value.section,
 );
-const sectionPath = computed(() => `/${detail.value.section}`);
+
+const sectionPath = computed(() => {
+  return detail.value.section === "realestate"
+    ? "/real-estate?page=1"
+    : `/${detail.value.section}?page=1`;
+});
 
 const pageTitle = computed(() => {
   if (!detail.value?.title) return "Loading... - KIN'S";
@@ -329,6 +334,10 @@ onMounted(() => {
 }
 
 @media (max-width: 767px) {
+  .title {
+    display: none;
+  }
+
   ::v-deep .mg-img-full {
     margin: 10px 0;
   }

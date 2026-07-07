@@ -778,7 +778,7 @@ video {
   font-size: 13px;
   color: var(--muted);
   padding-top: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .crumb-link {
@@ -807,11 +807,15 @@ video {
 }
 
 @media (max-width: 768px) {
-  .breadcrumb-nav {
-    font-size: 12px;
+  .sec-rule{
+    width: 100%;
   }
-  .crumb-current {
-    max-width: 180px;
+  .breadcrumb-nav {
+    font-size: 14px;
+    border-bottom: 1px solid var(--gold);
+    padding-top: 0;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
   }
   .show-desktop {
     display: none;
