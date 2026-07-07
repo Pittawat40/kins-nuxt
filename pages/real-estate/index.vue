@@ -17,7 +17,7 @@
             <div class="animate-text">
               <span class="sec-rule" />
               <p class="t-label mb-2">Collections</p>
-              <h2 class="t-h2" style="color: var(--ink-muted)">Real Estate</h2>
+              <h1 class="t-h1" style="color: var(--ink-muted)">Real Estate</h1>
             </div>
           </div>
         </div>

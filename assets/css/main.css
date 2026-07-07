@@ -125,6 +125,7 @@ video {
   text-transform: uppercase;
   color: var(--ink-muted);
 }
+.t-h1,
 .t-h2 {
   font-family: var(--font-serif);
   font-size: clamp(1.4rem, 2.5vw, 2.4rem);
@@ -770,7 +771,48 @@ video {
   display: block;
 }
 
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  padding-top: 10px;
+  flex-wrap: wrap;
+}
+
+.crumb-link {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.crumb-link:hover {
+  color: var(--ink);
+}
+
+.crumb-sep {
+  font-size: 10px;
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.crumb-current {
+  color: var(--ink-muted);
+  font-weight: 500;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
+  .breadcrumb-nav {
+    font-size: 12px;
+  }
+  .crumb-current {
+    max-width: 180px;
+  }
   .show-desktop {
     display: none;
   }

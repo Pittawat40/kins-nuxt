@@ -11,7 +11,22 @@
         :bannerImage="`${resolveImgUrl(detail.bannerImg || detail.img)}`"
       />
       <div class="container-fluid px-3 px-lg-5 mt-4">
-        <div class="title">{{ detail.title }}</div>
+        <div class="container-fluid px-3 px-lg-5 mt-4">
+          <nav class="breadcrumb-nav" aria-label="breadcrumb">
+            <NuxtLink to="/" class="crumb-link">Home</NuxtLink>
+            <i class="bi bi-chevron-right crumb-sep" />
+            <NuxtLink :to="sectionPath" class="crumb-link">{{
+              sectionLabel
+            }}</NuxtLink>
+            <i class="bi bi-chevron-right crumb-sep" />
+            <span class="crumb-current">{{ detail.title }}</span>
+          </nav>
+
+          <h1 class="title">{{ detail.title }}</h1>
+          <div class="html-desc" v-html="detail.content"></div>
+        </div>
+
+        <h1 class="title">{{ detail.title }}</h1>
         <div class="html-desc" v-html="detail.content"></div>
       </div>
 
@@ -61,6 +76,48 @@ const pending = ref(true);
 const detail = ref({});
 const postList = ref([]);
 const detailAds = ref([]);
+
+const sectionLabels = {
+  hotels: "Hotels",
+  realestate: "Real Estate",
+  travel: "Travel",
+  lifestyle: "Lifestyle",
+};
+
+const sectionLabel = computed(
+  () => sectionLabels[detail.value.section] || detail.value.section,
+);
+const sectionPath = computed(() => `/${detail.value.section}`);
+
+const pageTitle = computed(() => {
+  if (!detail.value?.title) return "Loading... - KIN'S";
+  return `${detail.value.title} - KIN'S`;
+});
+
+const pageDescription = computed(() => {
+  if (detail.value?.metaDesc) return detail.value.metaDesc;
+  if (detail.value?.description) {
+    return detail.value.description.replace(/<[^>]*>/g, "").slice(0, 160);
+  }
+  return "";
+});
+
+const pageImage = computed(() =>
+  resolveImgUrl(detail.value?.bannerImg || detail.value?.img),
+);
+
+useSeoMeta({
+  title: pageTitle,
+  description: pageDescription,
+  ogTitle: pageTitle,
+  ogDescription: pageDescription,
+  ogImage: pageImage,
+  ogType: "article",
+  twitterCard: "summary_large_image",
+  twitterTitle: pageTitle,
+  twitterDescription: pageDescription,
+  twitterImage: pageImage,
+});
 
 // ── ADS_PER_VIEW สำหรับหน้า detail ──────────────────────────────
 const DETAIL_ADS_PER_VIEW = 1;

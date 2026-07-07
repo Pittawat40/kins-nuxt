@@ -12,6 +12,22 @@
 useHead({ title: "KIN'S" });
 useScrollReveal();
 
+useSeoMeta({
+  title: "KIN'S",
+  description:
+    "ค้นพบโรงแรมสุดพิเศษ อสังหาริมทรัพย์น่าลงทุน ทริปเดินทางในฝัน และไลฟ์สไตล์ที่ใช่ กับ KIN'S แหล่งรวมแรงบันดาลใจของคุณ",
+  ogTitle: "KIN'S",
+  ogDescription:
+    "ค้นพบโรงแรมสุดพิเศษ อสังหาริมทรัพย์น่าลงทุน ทริปเดินทางในฝัน และไลฟ์สไตล์ที่ใช่ กับ KIN'S แหล่งรวมแรงบันดาลใจของคุณ",
+  ogImage: "/favicon-tab.png",
+  ogType: "website",
+  twitterCard: "summary_large_image",
+  twitterTitle: "KIN'S",
+  twitterDescription:
+    "ค้นพบโรงแรมสุดพิเศษ อสังหาริมทรัพย์น่าลงทุน ทริปเดินทางในฝัน และไลฟ์สไตล์ที่ใช่ กับ KIN'S แหล่งรวมแรงบันดาลใจของคุณ",
+  twitterImage: "/og-image.jpg",
+});
+
 const { posts, banners: bannersApi } = useApi();
 
 const heroBanners = ref([]);
