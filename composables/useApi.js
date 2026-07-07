@@ -149,6 +149,12 @@ export const useApi = () => {
         body: JSON.stringify({ direction }),
       });
     },
+    changeSection(section, id, newSection) {
+      return apiFetch(`/${section}/posts/${id}/move-section`, {
+        method: "PATCH",
+        body: JSON.stringify({ newSection }),
+      });
+    },
     combined(params = {}) {
       const q = new URLSearchParams(params).toString();
       return apiFetch(`/posts/combined${q ? `?${q}` : ""}`);

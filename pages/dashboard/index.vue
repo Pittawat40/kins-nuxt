@@ -173,6 +173,7 @@
                     <th style="width: 80px">Views</th>
                     <th style="width: 105px">Date</th>
                     <th style="width: 105px">Status</th>
+                    <th style="width: 160px">หมวดหมู่</th>
                     <th style="width: 90px">Sort</th>
                     <th style="width: 90px">Manage</th>
                   </tr>
@@ -234,6 +235,21 @@
                       <span class="status-chip" :class="item.status">{{
                         statusLabel(item.status)
                       }}</span>
+                    </td>
+                    <td>
+                      <select
+                        class="form-select form-select-sm"
+                        :value="activeSection"
+                        @change="changeCategory(item, $event.target.value)"
+                      >
+                        <option
+                          v-for="nav in navItems"
+                          :key="nav.key"
+                          :value="nav.key"
+                        >
+                          {{ nav.label }}
+                        </option>
+                      </select>
                     </td>
                     <td>
                       <div class="action-btns">
@@ -511,6 +527,20 @@ async function fetchAllSectionCounts() {
       const res = await postsApi.list(item.key, { page: 1, limit: 1 });
       sectionCount[item.key] = res.meta.total;
     } catch {}
+  }
+}
+
+async function changeCategory(item, newSection) {
+  if (newSection === activeSection.value) return;
+  try {
+    await postsApi.changeSection(activeSection.value, item.id, newSection);
+    showToast(
+      `ย้ายไป ${navItems.find((n) => n.key === newSection)?.label} แล้ว`,
+    );
+    await fetchPosts();
+    fetchAllSectionCounts();
+  } catch (e) {
+    showToast(e.message || "ย้ายหมวดหมู่ไม่ได้", "error");
   }
 }
 
